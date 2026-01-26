@@ -7,7 +7,7 @@ const { initDatabase, dropDatabase } = require('./database');
 const {insertUser, insertBand, insertReview, insertMessage, insertPublicEvent, insertPrivateEvent } = require('./databaseInsert');
 const {users, bands,public_events,private_events, reviews, messages} = require('./resources');
 const { getAllUsers, getUserByUsername, getUserByCredentials, updateUser, deleteUser}=require('./databaseQueriesUsers');
-const { getAllBands, getBandByCredentials, updateBand, deleteBand}=require('./databaseQueriesBands');
+const { getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand}=require('./databaseQueriesBands');
 
 const app = express();
 const PORT = 3000;
@@ -273,27 +273,7 @@ app.post('/subscribeBand', async (req, res) => {
     }
   }
 });
-/*
-app.get('/users/userSession', (req, res) => {
-    if (req.session.user && activeSessions.has(req.sessionID)) {
-        return res.json({ 
-            logIn: true, 
-            user: req.session.user,
-            sessionCount: activeSessions.size
-        });
-    } else {
-        // Clean up if session exists but not in activeSessions
-        if (req.session.user) {
-            req.session.destroy();
-            res.clearCookie('connect.sid');
-        }
-        return res.json({ 
-            logIn: false,
-            sessionCount: activeSessions.size
-        });
-    }
-});
-*/
+
 app.post('/bands/loginDetails', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -371,26 +351,82 @@ app.post('/bands/logout', (req, res) => {
         return res.status(400).json({ error: 'No active session' });
     }
 });
-/*
-app.get('/bands/bandSession', (req, res) => {
-    if (req.session.band && activeSessions.has(req.sessionID)) {
-        return res.json({
-            logIn: true,
-            band: req.session.band,
-            sessionCount: activeSessions.size
-        });
-    } else {
-        if (req.session.band) {
-            req.session.destroy();
-            res.clearCookie('connect.sid');
-        }
-        return res.json({
-            logIn: false,
-            sessionCount: activeSessions.size
+
+app.post('/admin/loginDetails', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Missing username and/or password' });
+    }
+
+    if (activeSessions.size > 0 && !activeSessions.has(req.sessionID)) {
+        const sessions = Array.from(activeSessions.values());
+        const current = sessions[0];
+        return res.status(409).json({
+            error: `${current.role} ${current.username} is already logged in. Please wait for them to logout.`
         });
     }
+
+    // Admin must be a user with username = 'admin'
+    const users = await getUserByCredentials(username, password);
+
+    if (users.length === 0 || username !== 'admin') {
+        return res.status(401).json({ error: 'Invalid admin credentials' });
+    }
+
+    for (const [sessionId, sessionData] of activeSessions) {
+        if (sessionData.username === username && sessionId !== req.sessionID) {
+            activeSessions.delete(sessionId);
+        }
+    }
+
+    req.session.admin = { username };
+
+    activeSessions.set(req.sessionID, {
+        username,
+        role: 'admin',
+        loginTime: new Date(),
+        sessionId: req.sessionID
+    });
+
+    app.locals.activeUsers = activeSessions.size;
+
+    console.log(`Admin ${username} logged in. Active sessions: ${activeSessions.size}`);
+
+    res.json({
+        message: 'Admin login successful',
+        admin: username,
+        sessionCount: activeSessions.size
+    });
 });
-*/
+
+app.post('/admin/logout', (req, res) => {
+    if (!req.session.admin) {
+        return res.status(400).json({ error: 'No active admin session' });
+    }
+
+    const sessionId = req.sessionID;
+    const username = req.session.admin.username;
+
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: 'Could not log out' });
+        }
+
+        activeSessions.delete(sessionId);
+        app.locals.activeUsers = activeSessions.size;
+
+        res.clearCookie('connect.sid');
+
+        console.log(`Admin ${username} logged out. Active sessions: ${activeSessions.size}`);
+
+        res.json({
+            message: 'Logout successful',
+            sessionCount: activeSessions.size
+        });
+    });
+});
+
 app.get('/session/status', (req, res) => {
 
     // No active sessions at all
@@ -435,7 +471,7 @@ app.get('/session/status', (req, res) => {
     });
 });
 
-// Add endpoint to force logout all sessions (testing)
+// logout all sessions (testing)
 app.post('/users/forceLogoutAll', (req, res) => {
     activeSessions.clear();
     app.locals.activeUsers = 0;
@@ -485,6 +521,29 @@ app.get('/users/profile', async (req, res) => {
     }
 });
 
+app.get('/bands/profile', async (req, res) => {
+    if (!req.session.band) {
+        return res.status(401).json({ error: "Not logged in as band" });
+    }
+
+    const username = req.session.band.username;
+
+    try {
+        const bands = await getBandByUsername(username);
+
+        if (bands.length === 0) {
+            return res.status(404).json({ error: "Band not found" });
+        }
+
+        const bandData = { ...bands[0] };
+        delete bandData.password;
+
+        res.json(bandData);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/users/profile/update', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: "Not logged in" });
@@ -511,6 +570,27 @@ app.post('/users/profile/update', async (req, res) => {
         } else {
             res.status(500).json({ error: "Failed to update profile" });
         }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/bands/profile/update', async (req, res) => {
+    if (!req.session.band) {
+        return res.status(401).json({ error: "Not logged in as band" });
+    }
+
+    const username = req.session.band.username;
+    const updates = req.body;
+
+    try {
+        const result = await updateBand(username, updates);
+
+        if (!result) {
+            return res.status(500).json({ error: "Failed to update band profile" });
+        }
+
+        res.json({ message: "Band profile updated successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

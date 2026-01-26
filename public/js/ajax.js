@@ -16,10 +16,10 @@ function getUser() {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            $("#ajaxContent").html(createTableFromJSON(JSON.parse(xhr.responseText)));
+            $("#profileContent").html(createTableFromJSON(JSON.parse(xhr.responseText)));
             //("#ajaxContent").html("Successful Login");
         } else if (xhr.status !== 200) {
-            $("#ajaxContent").html("User does not exist or incorrect password");
+            $("#profileContent").html("User does not exist or incorrect password");
         }
     };
     var data = $('#loginForm').serialize();
@@ -57,7 +57,6 @@ function insertDB() {
     xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
     xhr.send();
 }
-
 
 function deleteDB() {
     var xhr = new XMLHttpRequest();
@@ -135,20 +134,20 @@ function getUserPost() {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 const response = JSON.parse(xhr.responseText);
-                $("#ajaxContent").html(`<p style="color: green;">${response.message}</p>`);
+                $("#profileContent").html(`<p style="color: green;">${response.message}</p>`);
                 checkGlobalSession();
             } else if (xhr.status === 409) {
                 //someone already logged in
                 const response = JSON.parse(xhr.responseText);
-                $("#ajaxContent").html(`<p style="color: red;">${response.error}</p>`);
+                $("#profileContent").html(`<p style="color: red;">${response.error}</p>`);
             } else {
-                $("#ajaxContent").html("User does not exist or incorrect password");
+                $("#profileContent").html("User does not exist or incorrect password");
             }
         }
     };
     
     xhr.onerror = function() {
-        $("#ajaxContent").html("Network error occurred");
+        $("#profileContent").html("Network error occurred");
     };
     
     var data = $('#loginForm').serialize();
@@ -161,10 +160,10 @@ function logoutUserPost() {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            $("#ajaxContent").html("Logged out successfully");
+            $("#profileContent").html("Logged out successfully");
             checkGlobalSession();
         } else {
-            $("#ajaxContent").html("Logout failed");
+            $("#profileContent").html("Logout failed");
         }
     };
 
@@ -173,36 +172,6 @@ function logoutUserPost() {
     xhr.send();
 }
 
-/*
-function checkSession() {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            let data = JSON.parse(xhr.responseText);
-            updateSessionStatus(data);
-        }
-    };
-    xhr.open('GET', '/users/userSession');
-    xhr.send();
-}
-
-function updateSessionStatus(data) {
-    if (data.logIn) {
-        $('#sessionStatus').html(`✓ Logged in as: ${data.user.username}`);
-        $('#sessionCount').html(`Active sessions: ${data.sessionCount || 0}`);
-        $('button[onclick="getUserPost()"]').prop('disabled', true);
-        $('#loginForm')[0].reset(); //Clear fields
-    } else {
-        if (data.sessionCount > 0) {
-            $('#sessionStatus').html(`✗ Not logged in (Someone else is logged in)`);
-        } else {
-            $('#sessionStatus').html('✗ Not logged in');
-        }
-        $('#sessionCount').html(`Active sessions: ${data.sessionCount || 0}`);
-        $('button[onclick="getUserPost()"]').prop('disabled', data.sessionCount > 0);
-    }
-}
-*/
 function showUserProfile(user) {
     const birthdate = user.birthdate ? 
         new Date(user.birthdate).toISOString().split('T')[0] : 
@@ -212,7 +181,7 @@ function showUserProfile(user) {
     const genderFemale = user.gender === 'female' ? 'checked' : '';
     const genderOther = user.gender === 'other' ? 'checked' : '';
     
-    $("#ajaxContent").html(`
+    $("#profileContent").html(`
         <h2>Your Profile</h2>
         <form id="profileForm">
             <label>Username:</label><br>
@@ -277,17 +246,17 @@ function loadUserProfile() {
                 const userData = JSON.parse(xhr.responseText);
                 showUserProfile(userData);
             } else if (xhr.status === 401) {
-                $("#ajaxContent").html("<p style='color: red;'>Please login first to view your profile</p>");
+                $("#profileContent").html("<p style='color: red;'>Please login first to view your profile</p>");
             } else if (xhr.status === 404) {
-                $("#ajaxContent").html("<p style='color: red;'>User profile not found</p>");
+                $("#profileContent").html("<p style='color: red;'>User profile not found</p>");
             } else {
-                $("#ajaxContent").html("<p style='color: red;'>Error loading profile</p>");
+                $("#profileContent").html("<p style='color: red;'>Error loading profile</p>");
             }
         }
     };
     
     xhr.onerror = function() {
-        $("#ajaxContent").html("<p style='color: red;'>Network error occurred</p>");
+        $("#profileContent").html("<p style='color: red;'>Network error occurred</p>");
     };
     
     xhr.open('GET', '/users/profile');
@@ -347,19 +316,19 @@ function getBandPost() {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 const response = JSON.parse(xhr.responseText);
-                $("#ajaxContent").html(`<p style="color: green;">${response.message}</p>`);
+                $("#profileContent").html(`<p style="color: green;">${response.message}</p>`);
                 checkGlobalSession();
             } else if (xhr.status === 409) {
                 const response = JSON.parse(xhr.responseText);
-                $("#ajaxContent").html(`<p style="color: red;">${response.error}</p>`);
+                $("#profileContent").html(`<p style="color: red;">${response.error}</p>`);
             } else {
-                $("#ajaxContent").html("Band does not exist or incorrect password");
+                $("#profileContent").html("Band does not exist or incorrect password");
             }
         }
     };
 
     xhr.onerror = function () {
-        $("#ajaxContent").html("Network error occurred");
+        $("#profileContent").html("Network error occurred");
     };
 
     var data = $('#bandLoginForm').serialize();
@@ -373,10 +342,10 @@ function logoutBandPost() {
 
     xhr.onload = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            $("#ajaxContent").html("Logged out successfully");
+            $("#profileContent").html("Logged out successfully");
             checkGlobalSession();
         } else {
-            $("#ajaxContent").html("Logout failed");
+            $("#profileContent").html("Logout failed");
         }
     };
 
@@ -384,43 +353,154 @@ function logoutBandPost() {
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send();
 }
-/*
-function checkBandSession() {
+
+function loadBandProfile() {
     var xhr = new XMLHttpRequest();
+
     xhr.onload = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            let data = JSON.parse(xhr.responseText);
-            updateBandSessionStatus(data);
+            const band = JSON.parse(xhr.responseText);
+            showBandProfile(band);
+        } else {
+            $("#profileContent").html("<p style='color:red;'>Error loading band profile</p>");
         }
     };
-    xhr.open('GET', '/bands/bandSession');
+
+    xhr.open('GET', '/bands/profile');
     xhr.send();
 }
 
-function updateBandSessionStatus(data) {
-    if (data.logIn) {
-        $('#sessionStatus').html(`✓ Logged in as band: ${data.band.username}`);
-        $('#sessionCount').html(`Active sessions: ${data.sessionCount || 0}`);
-        $('button[onclick="getBandPost()"]').prop('disabled', true);
-        $('#bandLoginForm')[0].reset();
-    } else {
-        if (data.sessionCount > 0) {
-            $('#sessionStatus').html(`✗ Not logged in (Someone else is logged in)`);
-        } else {
-            $('#sessionStatus').html('✗ Not logged in');
-        }
-        $('#sessionCount').html(`Active sessions: ${data.sessionCount || 0}`);
-        $('button[onclick="getBandPost()"]').prop('disabled', data.sessionCount > 0);
-    }
+function showBandProfile(band) {
+    $("#profileContent").html(`
+        <h2>Band Profile</h2>
+
+        <label>Username:</label><br>
+        <input type="text" value="${band.username}" disabled><br><br>
+
+        <label>Band Name:</label><br>
+        <input type="text" id="band_name" value="${band.band_name || ''}"><br><br>
+
+        <label>Email:</label><br>
+        <input type="email" id="email" value="${band.email || ''}"><br><br>
+
+        <label>City:</label><br>
+        <input type="text" id="city" value="${band.city || ''}"><br><br>
+
+        <label>Telephone:</label><br>
+        <input type="text" id="telephone" value="${band.telephone || ''}"><br><br>
+
+        <button onclick="updateBandProfile()">Save Changes</button>
+    `);
 }
 
-// Auto-refresh session status every 5 seconds
-setInterval(checkSession, 5000);
+function updateBandProfile() {
+    const data = {
+        band_name: document.getElementById("band_name").value,
+        email: document.getElementById("email").value,
+        city: document.getElementById("city").value,
+        telephone: document.getElementById("telephone").value
+    };
 
-window.onload = function() {
-    checkSession();
-};
-*/
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            alert("Band profile updated successfully");
+            loadBandProfile();
+        } else {
+            const response = JSON.parse(xhr.responseText);
+            alert(response.error || "Update failed");
+        }
+    };
+
+    xhr.open('POST', '/bands/profile/update');
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(data));
+}
+
+function getAdminPost() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                $("#profileContent").html(
+                    `<p style="color: green;">${response.message}</p>`
+                );
+                checkGlobalSession();
+            } else {
+                const response = JSON.parse(xhr.responseText);
+                $("#profileContent").html(
+                    `<p style="color: red;">${response.error || "Invalid admin credentials"}</p>`
+                );
+            }
+        }
+    };
+
+    xhr.onerror = function () {
+        $("#profileContent").html("Network error occurred");
+    };
+
+    const data = $('#adminLoginForm').serialize();
+
+    xhr.open('POST', '/admin/loginDetails');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(data);
+}
+
+function logoutAdminPost() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            $("#profileContent").html("Logged out successfully");
+            checkGlobalSession();
+        } else {
+            $("#profileContent").html("Logout failed");
+        }
+    };
+
+    xhr.open('POST', '/admin/logout');
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send();
+}
+
+function loadAdminDashboard() {
+    $("#profileContent").html(`
+        <p>Admin profile</p>
+    `);
+}
+
+function loadProfilePage() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+
+            if (!data.loggedIn) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (data.role === 'user') {
+                loadUserProfile();
+            }
+
+            if (data.role === 'band') {
+                loadBandProfile();
+            }
+
+            if (data.role === 'admin') {
+                loadAdminDashboard();
+            }
+        }
+    };
+
+    xhr.open('GET', '/session/status');
+    xhr.send();
+}
 
 function checkGlobalSession() {
     var xhr = new XMLHttpRequest();
@@ -456,5 +536,10 @@ function updateGlobalSessionUI(data) {
 
 window.onload = function () {
     checkGlobalSession();
+
+    if (document.getElementById("profileContent")) {
+        loadProfilePage();
+    }
+
     setInterval(checkGlobalSession, 5000);
 };

@@ -63,23 +63,40 @@ async function getUserByCredentials(username, password) {
 }
 
 
-async function updateUser(username, newFirstname) {
+async function updateUser(username, updates) {
   try {
     const conn = await getConnection();
 
     const updateQuery = `
       UPDATE users
-      SET firstname = ?
+      SET
+        firstname = ?,
+        lastname = ?,
+        birthdate = ?,
+        gender = ?,
+        city = ?,
+        address = ?,
+        telephone = ?
       WHERE username = ?
     `;
 
-    const [result] = await conn.execute(updateQuery, [newFirstname, username]);
+    const values = [
+      updates.firstname || null,
+      updates.lastname || null,
+      updates.birthdate || null,
+      updates.gender || null,
+      updates.city || null,
+      updates.address || null,
+      updates.telephone || null,
+      username
+    ];
+    const [result] = await conn.execute(updateQuery, values);
 
     if (result.affectedRows === 0) {
       return 'No user found with that username.';
     }
 
-    return 'Firstname updated successfully.';
+    return 'User updated successfully.';
   } catch (err) {
     throw new Error('DB error: ' + err.message);
   }

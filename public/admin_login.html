@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <title>ADMIN ACCOUNT - LOGIN</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/ajax.js" defer></script>
+</head>
+
+<body>
+
+    <h2>ADMIN ACCOUNT - LOGIN</h2>
+
+    <div class="row">
+
+        <!-- LEFT COLUMN -->
+        <div class="column column1Width" id="choices" style="background-color:#ADD8E6;">
+
+            <form id="adminLoginForm" name="adminLoginForm">
+
+                <label for="username">username:</label><br>
+                <input type="text" id="username" name="username" required><br>
+
+                <label for="password">password:</label><br>
+                <input type="password" id="password" name="password" required><br>
+
+                <button
+                    type="button"
+                    class="button"
+                    onclick="getAdminPost(); return false;">
+                    Login
+                </button>
+
+                <button
+                    type="button"
+                    class="button"
+                    onclick="logoutAdminPost();">
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="column column2Width" id="output" style="background-color:#fffff0;">
+            <h2>Output</h2>
+            <div id="ajaxContent"></div>
+            <div id="dashboard"></div>
+        </div>
+
+    </div>
+
+    <br>
+
+    <div id="sessionStatus" style="margin-top: 10px; font-size: 12px; color: #666;">
+        Loading session status...
+    </div>
+
+    <br>
+
+    <div id="sessionCount" style="margin-top: 5px; font-size: 10px; color: #999;"></div>
+
+</body>
+</html>
