@@ -18,7 +18,6 @@ async function getConnection() {
   return connection;
 }
 
-
 async function initDatabase() {
   try {
     const conn = await getConnection();
@@ -48,90 +47,93 @@ async function initDatabase() {
     `;
 
     const createBandsTableQuery = `
-        CREATE TABLE bands (
-  band_id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) NOT NULL UNIQUE,
-  email VARCHAR(50) NOT NULL UNIQUE,
-  password VARCHAR(32) NOT NULL,
-  band_name VARCHAR(100) NOT NULL UNIQUE,
-  music_genres VARCHAR(100) NOT NULL,
-  band_description VARCHAR(500) NOT NULL,
-  members_number INT NOT NULL,
-  foundedYear INT NOT NULL,
-  band_city VARCHAR(100) NOT NULL,
-  telephone VARCHAR(20) NOT NULL,
-  webpage VARCHAR(255) ,
-  photo VARCHAR(255) 
-    )`;
+      CREATE TABLE bands (
+        band_id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        email VARCHAR(50) NOT NULL UNIQUE,
+        password VARCHAR(32) NOT NULL,
+        band_name VARCHAR(100) NOT NULL UNIQUE,
+        music_genres VARCHAR(100) NOT NULL,
+        band_description VARCHAR(500) NOT NULL,
+        members_number INT NOT NULL,
+        foundedYear INT NOT NULL,
+        band_city VARCHAR(100) NOT NULL,
+        telephone VARCHAR(20) NOT NULL,
+        webpage VARCHAR(255) ,
+        photo VARCHAR(255) 
+      )
+    `;
 
     const createReviewsTableQuery = `
-  CREATE TABLE reviews (
-  review_id INT AUTO_INCREMENT PRIMARY KEY,
-  band_name VARCHAR(100) NOT NULL,
-  sender VARCHAR(100) NOT NULL,
-  review VARCHAR(800) NOT NULL,
-  rating INT NOT NULL,
-  date_time DATETIME NOT NULL,
-  status VARCHAR(20) NOT NULL,
-  FOREIGN KEY (band_name) REFERENCES bands(band_name)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-)
-  `;
+      CREATE TABLE reviews (
+        review_id INT AUTO_INCREMENT PRIMARY KEY,
+        band_name VARCHAR(100) NOT NULL,
+        sender VARCHAR(100) NOT NULL,
+        review VARCHAR(800) NOT NULL,
+        rating INT NOT NULL,
+        date_time DATETIME NOT NULL,
+        status VARCHAR(20) NOT NULL,
+        FOREIGN KEY (band_name) REFERENCES bands(band_name)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+      )
+    `;
 
     const createMessagesTableQuery = `
-CREATE TABLE messages (
-  message_id INT AUTO_INCREMENT PRIMARY KEY,
-  private_event_id INT NOT NULL,
-  message TEXT NOT NULL,
-  sender VARCHAR(50) NOT NULL,
-  recipient VARCHAR(50) NOT NULL,
-  date_time DATETIME NOT NULL,
-  FOREIGN KEY (private_event_id) REFERENCES private_events(private_event_id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-)`;
+      CREATE TABLE messages (
+        message_id INT AUTO_INCREMENT PRIMARY KEY,
+        private_event_id INT NOT NULL,
+        message TEXT NOT NULL,
+        sender VARCHAR(50) NOT NULL,
+        recipient VARCHAR(50) NOT NULL,
+        date_time DATETIME NOT NULL,
+        FOREIGN KEY (private_event_id) REFERENCES private_events(private_event_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+      )
+    `;
 
-const createPublicEventsTableQuery=`
-CREATE TABLE public_events (
-  public_event_id INT AUTO_INCREMENT PRIMARY KEY,
-  band_id INT NOT NULL,
-  event_type VARCHAR(100) NOT NULL,
-  event_datetime DATETIME NOT NULL,
-  event_description VARCHAR(800) NOT NULL,
-  participants_price DECIMAL(10,2) NOT NULL,
-  event_city VARCHAR(100) NOT NULL,
-  event_address VARCHAR(255) NOT NULL,
-  event_lat DOUBLE,
-  event_lon DOUBLE,
-  FOREIGN KEY (band_id) REFERENCES bands(band_id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-)`;
+    const createPublicEventsTableQuery=`
+      CREATE TABLE public_events (
+        public_event_id INT AUTO_INCREMENT PRIMARY KEY,
+        band_id INT NOT NULL,
+        event_type VARCHAR(100) NOT NULL,
+        event_datetime DATETIME NOT NULL,
+        event_description VARCHAR(800) NOT NULL,
+        participants_price DECIMAL(10,2) NOT NULL,
+        event_city VARCHAR(100) NOT NULL,
+        event_address VARCHAR(255) NOT NULL,
+        event_lat DOUBLE,
+        event_lon DOUBLE,
+        FOREIGN KEY (band_id) REFERENCES bands(band_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+      )
+    `;
 
-const createPrivateEventsTableQuery=`
-CREATE TABLE private_events (
-  private_event_id INT AUTO_INCREMENT PRIMARY KEY,
-  band_id INT NOT NULL,
-  price DECIMAL(10,2) NOT NULL,
-  status VARCHAR(50) NOT NULL,
-  band_decision VARCHAR(50) NOT NULL,
-  user_id INT NOT NULL,
-  event_type VARCHAR(100) NOT NULL,
-  event_datetime DATETIME NOT NULL,
-  event_description VARCHAR(800) NOT NULL,
-  event_city VARCHAR(100) NOT NULL,
-  event_address VARCHAR(255) NOT NULL,
-  event_lat DOUBLE,
-  event_lon DOUBLE,
-  FOREIGN KEY (band_id) REFERENCES bands(band_id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(user_id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-)
-`;
+    const createPrivateEventsTableQuery=`
+      CREATE TABLE private_events (
+        private_event_id INT AUTO_INCREMENT PRIMARY KEY,
+        band_id INT NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        status VARCHAR(50) NOT NULL,
+        band_decision VARCHAR(50) NOT NULL,
+        user_id INT NOT NULL,
+        event_type VARCHAR(100) NOT NULL,
+        event_datetime DATETIME NOT NULL,
+        event_description VARCHAR(800) NOT NULL,
+        event_city VARCHAR(100) NOT NULL,
+        event_address VARCHAR(255) NOT NULL,
+        event_lat DOUBLE,
+        event_lon DOUBLE,
+        FOREIGN KEY (band_id) REFERENCES bands(band_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+      )
+    `;
 
 
     await conn.query(createUsersTableQuery);
@@ -159,7 +161,3 @@ async function dropDatabase() {
 }
 
 module.exports = { initDatabase, dropDatabase };
-
-// 👉 Κάλεσε το function όταν θες
-// createDatabaseAndUsersTable();
-//npm install express mysql2

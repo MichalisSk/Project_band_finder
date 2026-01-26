@@ -245,7 +245,6 @@ function showUserProfile(user) {
             <select id="country" name="country" disabled>
                 <option value="">Select a country</option>
                 <option value="GR" ${user.country === 'GR' ? 'selected' : ''}>Greece</option>
-                <!-- Add more country options as needed -->
                 <option value="US" ${user.country === 'US' ? 'selected' : ''}>United States</option>
                 <option value="GB" ${user.country === 'GB' ? 'selected' : ''}>United Kingdom</option>
                 <option value="DE" ${user.country === 'DE' ? 'selected' : ''}>Germany</option>

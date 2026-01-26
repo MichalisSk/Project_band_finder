@@ -44,8 +44,3 @@ loc_button.addEventListener("click", function(){
     map.setCenter(position1, zoom);
     console.log("clicked show location w/ lon:"+longitude+" and lat:"+latitude);
 });
-
-/* 
-lattitude 38.9953683
-longitute 21.9877132
-*/

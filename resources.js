@@ -2,6 +2,21 @@
 //Users
 const users = [
   {
+    username: "admin",
+    email: "admin@example.com",
+    password: "admiN12@*",
+    firstname: "admin",
+    lastname: "istrator",
+    birthdate: "2000-01-01",
+    gender: "male",
+    country: "Greece",
+    city: "Heraklion",
+    address: "University of Greece",
+    telephone: "+30 2810 393504",
+    lat: 35.3072756,
+    lon: 25.08249485321918
+  },
+  {
     username: "jdoe1",
     email: "jdoe1@example.com",
     password: "P@ssw0rd123",

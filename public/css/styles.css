@@ -91,6 +91,21 @@ a {
   background: #192a56;
 }
 
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
+  text-align: center;
+  padding: 10px 0;
+}
+
+.footer-links {
+  font-weight: 500;
+}
+
+
 /* USER FORM STYLES */
 
 form#user_form,
@@ -168,6 +183,13 @@ form#band_form select:focus {
   margin-top: 0.4rem;
   font-size: 0.9rem;
   text-align: center;
+}
+
+/* map */
+#Map {
+  width: 100%;
+  height: 400px;
+  margin-top: 1rem;
 }
 
 /* Buttons */
