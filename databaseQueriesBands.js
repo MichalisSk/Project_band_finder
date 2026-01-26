@@ -30,6 +30,61 @@ async function getAllBands() {
   }
 }
 
+async function getBandByUsername(username) {
+    
+    try {
+    const conn = await getConnection();
+
+    const selectQuery = "SELECT * FROM bands WHERE username = ?";
+
+    const [rows] = await conn.execute(selectQuery, [username]);
+
+    return rows;
+  } catch (err) {
+    throw new Error('DB error: ' + err.message);
+  }
+} 
+
+async function updateBand(username, updates) {
+  try {
+    const conn = await getConnection();
+
+    const updateQuery = `
+      UPDATE bands
+      SET
+        band_name = ?,
+        music_genres = ?,
+        band_description = ?,
+        members_number = ?,
+        foundedYear = ?,
+        band_city = ?,
+        telephone = ?,
+        webpage = ?,
+        photo = ?
+      WHERE username = ?
+    `;
+
+    const values = [
+      updates.band_name ?? null,
+      updates.music_genres ?? null,
+      updates.band_description ?? null,
+      updates.members_number ?? null,
+      updates.foundedYear ?? null,
+      updates.band_city ?? null,
+      updates.telephone ?? null,
+      updates.webpage || null,   // optional
+      updates.photo || null,     // optional
+      username
+    ];
+
+    const [result] = await conn.execute(updateQuery, values);
+
+    return result.affectedRows > 0;
+  } catch (err) {
+    throw new Error('DB error: ' + err.message);
+  }
+}
+
 async function getBandByCredentials(username, password) {
   try {
     const conn = await getConnection();
@@ -42,29 +97,6 @@ async function getBandByCredentials(username, password) {
     const [rows] = await conn.execute(selectQuery, [username, password]);
 
     return rows; // returns an array of matching bands (likely 0 or 1)
-  } catch (err) {
-    throw new Error('DB error: ' + err.message);
-  }
-}
-
-
-async function updateBand(username, newBandName) {
-  try {
-    const conn = await getConnection();
-
-    const updateQuery = `
-      UPDATE users
-      SET band_name = ?
-      WHERE username = ?
-    `;
-
-    const [result] = await conn.execute(updateQuery, [newBandName, username]);
-
-    if (result.affectedRows === 0) {
-      return 'No band found with that username.';
-    }
-
-    return 'Firstname updated successfully.';
   } catch (err) {
     throw new Error('DB error: ' + err.message);
   }
@@ -92,4 +124,4 @@ async function deleteBand(username) {
 }
 
 
-module.exports = {getAllBands, getBandByCredentials, updateBand, deleteBand};
+module.exports = {getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand};

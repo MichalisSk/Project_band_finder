@@ -377,28 +377,54 @@ function showBandProfile(band) {
         <label>Username:</label><br>
         <input type="text" value="${band.username}" disabled><br><br>
 
+        <label>Email:</label><br>
+        <input type="email" value="${band.email}" disabled><br><br>
+
         <label>Band Name:</label><br>
         <input type="text" id="band_name" value="${band.band_name || ''}"><br><br>
 
-        <label>Email:</label><br>
-        <input type="email" id="email" value="${band.email || ''}"><br><br>
+        <label>Music Genres:</label><br>
+        <input type="text" id="music_genres" value="${band.music_genres || ''}"><br><br>
+
+        <label>Description:</label><br>
+        <textarea id="band_description" rows="4">${band.band_description || ''}</textarea><br><br>
+
+        <label>Members:</label><br>
+        <input type="number" id="members_number" min="1" max="10"
+               value="${band.members_number || 1}"><br><br>
+
+        <label>Founded Year:</label><br>
+        <input type="number" id="foundedYear" min="1960" max="2025"
+               value="${band.foundedYear || ''}"><br><br>
 
         <label>City:</label><br>
-        <input type="text" id="city" value="${band.city || ''}"><br><br>
+        <input type="text" id="band_city" value="${band.band_city || ''}"><br><br>
 
         <label>Telephone:</label><br>
         <input type="text" id="telephone" value="${band.telephone || ''}"><br><br>
+
+        <label>Webpage:</label><br>
+        <input type="url" id="webpage" value="${band.webpage || ''}"><br><br>
+
+        <label>Photo URL:</label><br>
+        <input type="url" id="photo" value="${band.photo || ''}"><br><br>
 
         <button onclick="updateBandProfile()">Save Changes</button>
     `);
 }
 
+
 function updateBandProfile() {
     const data = {
         band_name: document.getElementById("band_name").value,
-        email: document.getElementById("email").value,
-        city: document.getElementById("city").value,
-        telephone: document.getElementById("telephone").value
+        music_genres: document.getElementById("music_genres").value,
+        band_description: document.getElementById("band_description").value,
+        members_number: document.getElementById("members_number").value,
+        foundedYear: document.getElementById("foundedYear").value,
+        band_city: document.getElementById("band_city").value,
+        telephone: document.getElementById("telephone").value,
+        webpage: document.getElementById("webpage").value || null,
+        photo: document.getElementById("photo").value || null
     };
 
     var xhr = new XMLHttpRequest();
@@ -417,6 +443,7 @@ function updateBandProfile() {
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(JSON.stringify(data));
 }
+
 
 function getAdminPost() {
     var xhr = new XMLHttpRequest();
