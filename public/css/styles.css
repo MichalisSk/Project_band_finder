@@ -18,7 +18,7 @@ a {
   color: inherit;
 }
 
-/* NAVBAR */
+/* NAVBAR (already used by main.html) */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -91,16 +91,115 @@ a {
   background: #192a56;
 }
 
-/* FOOTER */
-.footer {
-  margin-top: 4rem;
-  padding: 1.5rem;
-  background: #2f3640;
-  color: #dcdde1;
+/* USER FORM STYLES */
+
+form#user_form,
+form#band_form {
+  max-width: 700px;
+  margin: 3rem auto;
+  background: #fff;
+  padding: 2rem 3rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+form#user_form h1,
+form#band_form h1 {
+  text-align: center;
+  color: #273c75;
+  margin-bottom: 2rem;
+}
+
+/* Form groups */
+form#user_form > div,
+form#band_form > div {
+  margin-bottom: 1.2rem;
+}
+
+/* Labels */
+form#user_form label,
+form#band_form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: bold;
+}
+
+/* Inputs & select */
+form#user_form input,
+form#user_form select,
+form#band_form input,
+form#band_form select {
+  width: 100%;
+  padding: 0.55rem;
+  border-radius: 4px;
+  border: 1px solid #dcdde1;
+  font-size: 0.95rem;
+}
+
+form#user_form input:focus,
+form#user_form select:focus,
+form#band_form input:focus,
+form#band_form select:focus {
+  outline: none;
+  border-color: #273c75;
+}
+
+/* Password buttons */
+#show-pass,
+#show-con-pass {
+  margin-top: 0.5rem;
+  background: #718093;
+  color: #fff;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#show-pass:hover,
+#show-con-pass:hover {
+  background: #57606f;
+}
+
+/* Validation messages */
+#strength_message,
+#pass_message,
+#add_out {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
   text-align: center;
 }
 
-.footer-links a {
-  margin: 0 0.5rem;
-  font-size: 0.9rem;
+/* Buttons */
+form#user_form button,
+form#band_form button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+/* Subscribe + Submit */
+#subscribe_user,
+#subscribe_band,
+#submit {
+  background: #44bd32;
+  color: #fff;
+}
+
+#subscribe_user:hover,
+#subscribe_band:hover,
+#submit:hover {
+  background: #2ecc71;
+}
+
+/* Reset */
+#reset {
+  background: #e84118;
+  color: #fff;
+}
+
+#reset:hover {
+  background: #c23616;
 }

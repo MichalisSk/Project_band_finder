@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Band Finder</title>
+  <title>BandFinder | Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="stylesheet" href="css/styles.css" />
@@ -14,50 +14,47 @@
       <h1>🎵 BandFinder</h1>
     </div>
     <nav class="nav-right">
-      <a href="index.html">Home</a>
-      <a href="#">Bands</a>
-      <a href="#">Events</a>
-      <a href="login.html">Login</a>
+      <a href="main.html">Home</a>
       <a href="register.html" class="btn">Register</a>
     </nav>
   </header>
 
   <main class="container">
     <section class="hero">
-      <h2>Find the perfect band for your event</h2>
-      <p>Search bands, explore events, and connect easily.</p>
+      <h2>Login</h2>
+      <p>Select your account type</p>
     </section>
 
     <section class="grid">
       <div class="card">
-        <h3>🎸 Bands</h3>
-        <p>Browse bands by genre, city, and availability.</p>
-        <button>Explore Bands</button>
+        <h3>👤 User Login</h3>
+        <p>Access your bookings and reviews.</p>
+        <button onclick="location.href='user_login.html'">
+          Login as User
+        </button>
       </div>
 
       <div class="card">
-        <h3>📅 Events</h3>
-        <p>See upcoming public events across Crete.</p>
-        <button>View Events</button>
+        <h3>🎸 Band Login</h3>
+        <p>Manage your band profile and events.</p>
+        <button onclick="location.href='band_login.html'">
+          Login as Band
+        </button>
       </div>
 
       <div class="card">
-        <h3>👤 Users</h3>
-        <p>Register to book bands and leave reviews.</p>
-        <button>Get Started</button>
+        <h3>🛠 Admin Login</h3>
+        <p>System management and moderation.</p>
+        <button onclick="location.href='admin_login.html'">
+          Login as Admin
+        </button>
       </div>
     </section>
   </main>
 
   <footer class="footer">
     <p>© 2026 BandFinder | HY359 - Διαδικτυακός Προγραμματισμός | Project by csd4107 and csd4098</p>
-    <div class="footer-links">
-      <a href="#">Music Info</a>
-      <a href="#">External Links</a>
-      <a href="#">About</a>
-    </div>
   </footer>
 
-  <script src="js/main.js"></script>
 </body>
 </html>

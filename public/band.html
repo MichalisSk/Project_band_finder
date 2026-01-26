@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Band Finder | Registration</title>
+    <meta charset="UTF-8">
+	<meta name="Emmanouil Stavroulakis" content="band_form">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="css/styles.css" rel="stylesheet" >
+
+</head>
+
+<body>
+    <form id="band_form" action="action_page.php" method="post">
+
+        <br>
+        <h1><u>BAND REGISTRATION</u></h1>
+        <br>
+        <div class="username">
+            <label for="username">Username* :</label>
+            <input type="text" id="username" name="username" placeholder="IronMaiden75" minlength="6" 
+                pattern="[A-Za-z].{5,}"
+                title="6 or more characters that do not start with a number or a special character" required>
+        </div>
+
+        <br>
+
+        <div class="email">
+            <label for="email">Email* :</label>
+            <input type="email" id="email" name="email" placeholder="example@something.com" 
+                title="Provide a valid email address" required>
+        </div>
+
+        <br>
+
+        <div class="password">
+            <label for="password">Password* :</label>
+            <input type="password" id="password" name="password" placeholder="********" minlength="8" maxlength="14"
+                title="8 - 14 characters, must contain at least one capital latin character, one special character and one number" 
+                required>
+            <button id="show-pass">Show</button>
+            <p id="strength_message"></p>
+        </div>
+
+        <br>
+
+        <div class="con_password">
+            <label for="con_password">Confirm Password* :</label>
+            <input type="password" id="con_password" name="con_password" placeholder="********" minlength="8" maxlength="14" 
+                title="8 - 14 characters, must contain at least one capital latin character, one special character and one number"
+                required>
+            <button id="show-con-pass">Show</button>
+            <p id="pass_message"></p>
+        </div>
+
+        <br>
+
+        <div class="band_name">
+            <label for="band_name">Band Name* :</label>
+            <input type="text" id="band_name" name="band_name" placeholder="Iron Maiden" minlength="3" maxlength="30" 
+                pattern="[A-Za-z ]{3,30}"
+                title="3 - 30 latin characters without containing any numbers" required>
+        </div>
+
+        <br>
+
+        <div class="music_genres">
+            <label for="music_genres">Music Genres* :</label>
+            <input type="text" id="music_genres" name="music_genres" placeholder="Heavy metal" 
+                minlength="3" maxlength="200" 
+                pattern="[A-Za-z ]{3,200}"
+                title="3 - 200 latin characters without containing any numbers" required>
+        </div>
+
+        <br>
+
+        <div class="band_description">
+            <label for="band_description">Band description* :</label>
+            <input type="text" id="band_description" name="band_description" placeholder="English heavy metal band" 
+                minlength="3" maxlength="1000" 
+                pattern="[A-Za-z ]{3,1000}"
+                title="3 - 1000 latin characters without containing any numbers" required>
+        </div>
+
+        <br>
+        
+        <div class="members_number">
+            <label for="members_number">Number of members* :</label>
+            <input type="number" id="members_number" name="members_number"
+                min="1" max="10" value="1" required>
+        </div>
+
+        <br>
+
+        <div class="foundedYear">
+            <label for="foundedYear">Year founded* :</label>
+            <input type="number" id="foundedYear" name="foundedYear" min="1960" max="2025" value="1960"
+                required>
+        </div>
+
+        <br>
+
+        <div class="band_city">
+            <label for="band_city">Band City* :</label>
+            <input type="text" id="band_city" name="band_city" minlength="3" maxlength="30"
+                placeholder="Leyton" required>
+        </div>
+
+        <br>
+
+        <div class="telephone">
+            <label for="telephone">Telephone* :</label>
+            <input type="text" id="telephone" name="telephone" minlength="10" maxlength="14"
+                pattern="[0-9]{10,14}" placeholder="69xxxxxxxx" required>
+        </div>
+
+        <br>
+
+        <div class="webpage">
+            <label for="webpage">Band webpage :</label>
+            <input type="url" id="webpage" name="webpage"
+                placeholder="http://band_webpage.com">
+        </div>
+
+        <br>
+
+        <div class="photo">
+            <label for="photo">Band photograph :</label>
+            <input type="url" id="photo" name="photo"
+                placeholder="http://band_photo.com">
+        </div>
+
+        <br>
+
+        <div class="subscribe">
+            <button type="button" id="subscribe_band" name="subscribe" value="subscribe" disabled>Subscribe</button>
+        </div>
+
+        <br>
+
+        <div class="reset">
+            <button type="reset" id="reset" name="reset" value="Reset">Reset</button>
+        </div>
+    
+    </form>
+
+    <h6>* means required field</h6>
+
+    <div id="output"></div>
+
+    <footer>
+        <p class="footer_p">©Copyright 2025 by Manos. All rights reversed.<br></p>
+    </footer>
+
+    <script src="js/password.js" ></script>
+
+    <script src="js/ajax.js"></script>
+
+    <script 
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+		integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+		crossorigin="anonymous">
+	</script>
+</body>
+
+</html>
