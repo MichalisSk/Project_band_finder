@@ -136,7 +136,7 @@ function getUserPost() {
             if (xhr.status === 200) {
                 const response = JSON.parse(xhr.responseText);
                 $("#ajaxContent").html(`<p style="color: green;">${response.message}</p>`);
-                checkSession(); // Update session status
+                checkGlobalSession();
             } else if (xhr.status === 409) {
                 //someone already logged in
                 const response = JSON.parse(xhr.responseText);
@@ -162,7 +162,7 @@ function logoutUserPost() {
     xhr.onload = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             $("#ajaxContent").html("Logged out successfully");
-            checkSession(); // Update status
+            checkGlobalSession();
         } else {
             $("#ajaxContent").html("Logout failed");
         }
@@ -173,6 +173,7 @@ function logoutUserPost() {
     xhr.send();
 }
 
+/*
 function checkSession() {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -201,7 +202,7 @@ function updateSessionStatus(data) {
         $('button[onclick="getUserPost()"]').prop('disabled', data.sessionCount > 0);
     }
 }
-
+*/
 function showUserProfile(user) {
     const birthdate = user.birthdate ? 
         new Date(user.birthdate).toISOString().split('T')[0] : 
@@ -339,12 +340,121 @@ function updateProfile() {
     xhr.send(JSON.stringify(data));
 }
 
+function getBandPost() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                $("#ajaxContent").html(`<p style="color: green;">${response.message}</p>`);
+                checkGlobalSession();
+            } else if (xhr.status === 409) {
+                const response = JSON.parse(xhr.responseText);
+                $("#ajaxContent").html(`<p style="color: red;">${response.error}</p>`);
+            } else {
+                $("#ajaxContent").html("Band does not exist or incorrect password");
+            }
+        }
+    };
+
+    xhr.onerror = function () {
+        $("#ajaxContent").html("Network error occurred");
+    };
+
+    var data = $('#bandLoginForm').serialize();
+    xhr.open('POST', '/bands/loginDetails');
+    xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+    xhr.send(data);
+}
+
+function logoutBandPost() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            $("#ajaxContent").html("Logged out successfully");
+            checkGlobalSession();
+        } else {
+            $("#ajaxContent").html("Logout failed");
+        }
+    };
+
+    xhr.open('POST', '/bands/logout');
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send();
+}
+/*
+function checkBandSession() {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            let data = JSON.parse(xhr.responseText);
+            updateBandSessionStatus(data);
+        }
+    };
+    xhr.open('GET', '/bands/bandSession');
+    xhr.send();
+}
+
+function updateBandSessionStatus(data) {
+    if (data.logIn) {
+        $('#sessionStatus').html(`✓ Logged in as band: ${data.band.username}`);
+        $('#sessionCount').html(`Active sessions: ${data.sessionCount || 0}`);
+        $('button[onclick="getBandPost()"]').prop('disabled', true);
+        $('#bandLoginForm')[0].reset();
+    } else {
+        if (data.sessionCount > 0) {
+            $('#sessionStatus').html(`✗ Not logged in (Someone else is logged in)`);
+        } else {
+            $('#sessionStatus').html('✗ Not logged in');
+        }
+        $('#sessionCount').html(`Active sessions: ${data.sessionCount || 0}`);
+        $('button[onclick="getBandPost()"]').prop('disabled', data.sessionCount > 0);
+    }
+}
+
 // Auto-refresh session status every 5 seconds
 setInterval(checkSession, 5000);
 
 window.onload = function() {
     checkSession();
 };
+*/
 
+function checkGlobalSession() {
+    var xhr = new XMLHttpRequest();
 
-// mA!@#45as
+    xhr.onload = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            updateGlobalSessionUI(data);
+        }
+    };
+
+    xhr.open('GET', '/session/status');
+    xhr.send();
+}
+
+function updateGlobalSessionUI(data) {
+    if (data.loggedIn) {
+        $('#sessionStatus').html(
+            `✓ Logged in as ${data.role}: ${data.username}`
+        );
+        $('#sessionCount').html(`Active sessions: ${data.sessionCount}`);
+    } else {
+        if (data.sessionCount > 0) {
+            $('#sessionStatus').html(
+                `✗ ${data.role} ${data.username} is currently logged in`
+            );
+        } else {
+            $('#sessionStatus').html('✗ Not logged in');
+        }
+        $('#sessionCount').html(`Active sessions: ${data.sessionCount}`);
+    }
+}
+
+window.onload = function () {
+    checkGlobalSession();
+    setInterval(checkGlobalSession, 5000);
+};

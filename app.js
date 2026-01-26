@@ -165,7 +165,8 @@ app.post('/users/loginDetails', async (req, res) => {
   req.session.user = { username: user.username };
   
   activeSessions.set(req.sessionID, { 
-    username: user.username, 
+    username: user.username,
+    role: 'user', 
     loginTime: new Date(),
     sessionId: req.sessionID
   });
@@ -272,7 +273,7 @@ app.post('/subscribeBand', async (req, res) => {
     }
   }
 });
-
+/*
 app.get('/users/userSession', (req, res) => {
     if (req.session.user && activeSessions.has(req.sessionID)) {
         return res.json({ 
@@ -291,6 +292,147 @@ app.get('/users/userSession', (req, res) => {
             sessionCount: activeSessions.size
         });
     }
+});
+*/
+app.post('/bands/loginDetails', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Missing username and/or password' });
+    }
+
+    // Single active session rule (shared with users)
+    if (activeSessions.size > 0) {
+        if (!activeSessions.has(req.sessionID)) {
+            const sessions = Array.from(activeSessions.values());
+            const current = sessions[0];
+            return res.status(409).json({
+                error: `${current.role} ${current.username} is already logged in. Please wait for them to logout.`
+            });
+        }
+    }
+
+    const bands = await getBandByCredentials(username, password);
+
+    if (bands.length === 0) {
+        return res.status(400).json({ message: "Invalid credentials!" });
+    }
+
+    const band = bands[0];
+
+    // Remove duplicate sessions of same band
+    for (const [sessionId, sessionData] of activeSessions) {
+        if (sessionData.username === username && sessionId !== req.sessionID) {
+            activeSessions.delete(sessionId);
+        }
+    }
+
+    req.session.band = { username: band.username };
+
+    activeSessions.set(req.sessionID, {
+        username: band.username,
+        role: 'band',
+        loginTime: new Date(),
+        sessionId: req.sessionID
+    });
+
+    app.locals.activeUsers = activeSessions.size;
+
+    console.log(`Band ${username} logged in. Active sessions: ${activeSessions.size}`);
+
+    res.json({
+        message: "Login successful",
+        band: band.username,
+        sessionCount: activeSessions.size
+    });
+});
+
+app.post('/bands/logout', (req, res) => {
+    if (req.session.band) {
+        const sessionId = req.sessionID;
+        const username = req.session.band.username;
+
+        req.session.destroy(err => {
+            if (err) {
+                return res.status(500).json({ error: 'Could not log out' });
+            }
+
+            activeSessions.delete(sessionId);
+            app.locals.activeUsers = activeSessions.size;
+
+            res.clearCookie('connect.sid');
+            console.log(`Band ${username} logged out. Active sessions: ${activeSessions.size}`);
+
+            return res.json({
+                message: 'Logout successful',
+                sessionCount: activeSessions.size
+            });
+        });
+    } else {
+        return res.status(400).json({ error: 'No active session' });
+    }
+});
+/*
+app.get('/bands/bandSession', (req, res) => {
+    if (req.session.band && activeSessions.has(req.sessionID)) {
+        return res.json({
+            logIn: true,
+            band: req.session.band,
+            sessionCount: activeSessions.size
+        });
+    } else {
+        if (req.session.band) {
+            req.session.destroy();
+            res.clearCookie('connect.sid');
+        }
+        return res.json({
+            logIn: false,
+            sessionCount: activeSessions.size
+        });
+    }
+});
+*/
+app.get('/session/status', (req, res) => {
+
+    // No active sessions at all
+    if (activeSessions.size === 0) {
+        return res.json({
+            loggedIn: false,
+            role: null,
+            username: null,
+            sessionCount: 0
+        });
+    }
+
+    // Logged in as USER
+    if (req.session.user && activeSessions.has(req.sessionID)) {
+        return res.json({
+            loggedIn: true,
+            role: 'user',
+            username: req.session.user.username,
+            sessionCount: activeSessions.size
+        });
+    }
+
+    // Logged in as BAND
+    if (req.session.band && activeSessions.has(req.sessionID)) {
+        return res.json({
+            loggedIn: true,
+            role: 'band',
+            username: req.session.band.username,
+            sessionCount: activeSessions.size
+        });
+    }
+
+    // Someone else is logged in
+    const sessions = Array.from(activeSessions.values());
+    const current = sessions[0];
+
+    return res.json({
+        loggedIn: false,
+        role: current.role,
+        username: current.username,
+        sessionCount: activeSessions.size
+    });
 });
 
 // Add endpoint to force logout all sessions (testing)
