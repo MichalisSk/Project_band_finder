@@ -225,3 +225,92 @@ form#band_form button {
 #reset:hover {
   background: #c23616;
 }
+
+/* Page title */
+body h2 {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  color: #273c75;
+}
+
+/* Override old assignment layout */
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Login & output columns as cards */
+.column {
+  background: #fff !important;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border: none !important;
+}
+
+/* Left (login form) */
+.column1Width {
+  width: 35%;
+  min-width: 300px;
+}
+
+/* Right (output panel) */
+.column2Width {
+  width: 55%;
+  min-width: 350px;
+}
+
+/* Login form styling */
+#loginForm label {
+  font-weight: bold;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+#loginForm input {
+  width: 100%;
+  padding: 0.55rem;
+  margin-bottom: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid #dcdde1;
+}
+
+#loginForm input:focus {
+  outline: none;
+  border-color: #273c75;
+}
+
+/* Buttons (match site style) */
+.button {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  background: #273c75;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.button:hover {
+  background: #192a56;
+}
+
+/* Output section title */
+#output h2 {
+  margin-bottom: 1rem;
+  color: #273c75;
+}
+
+/* Session info */
+#sessionStatus,
+#sessionCount {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}

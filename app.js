@@ -6,7 +6,7 @@ const path = require('path');
 const { initDatabase, dropDatabase } = require('./database');
 const {insertUser, insertBand, insertReview, insertMessage, insertPublicEvent, insertPrivateEvent } = require('./databaseInsert');
 const {users, bands,public_events,private_events, reviews, messages} = require('./resources');
-const { getAllUsers, getUserByCredentials, getUserByUsername, updateUser, deleteUser}=require('./databaseQueriesUsers');
+const { getAllUsers, getUserByUsername, getUserByCredentials, updateUser, deleteUser}=require('./databaseQueriesUsers');
 const { getAllBands, getBandByCredentials, updateBand, deleteBand}=require('./databaseQueriesBands');
 
 const app = express();
@@ -324,7 +324,7 @@ app.get('/users/profile', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: "Not logged in" });
     }
-    
+
     const username = req.session.user.username;  // Get username from session
     
     try {

@@ -30,6 +30,21 @@ async function getAllUsers() {
   }
 }
 
+async function getUserByUsername(username) {
+    
+    try {
+    const conn = await getConnection();
+
+    const selectQuery = "SELECT * FROM users WHERE username = ?";
+
+    const [rows] = await conn.execute(selectQuery, [username]);
+
+    return rows;
+  } catch (err) {
+    throw new Error('DB error: ' + err.message);
+  }
+}   // NEW FUNCTION
+
 async function getUserByCredentials(username, password) {
   try {
     const conn = await getConnection();
@@ -92,4 +107,4 @@ async function deleteUser(username) {
 }
 
 
-module.exports = {getAllUsers, getUserByCredentials, updateUser, deleteUser};
+module.exports = {getAllUsers, getUserByUsername, getUserByCredentials, updateUser, deleteUser};
