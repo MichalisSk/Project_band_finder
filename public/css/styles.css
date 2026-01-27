@@ -368,3 +368,11 @@ body h2 {
     color: #273c75;
     margin-bottom: 1rem;
 }
+
+#search_delete_container {
+  display: flex;
+  height: 10%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}

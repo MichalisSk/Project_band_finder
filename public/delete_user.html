@@ -3,28 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN DASHBOARD</title>
+    <title>User Deletion</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-    <div class="dashboard_wrapper">
-        
+   <div class="dashboard_wrapper">        
         <nav class="side-menu">
             <h3>Admin Panel</h3>
             <a href="delete_user.html" id="admin_delete">Delete User</a>
             <a href="manage_reviews.html" id="admin_reviews">Manage Reviews</a>
             <a href="statistics.html" id="admin_statistics">Show Statistics</a>
         </nav>
-
-        <div class="admin-content">
-            <h1>Dashboard Overview</h1>
-            <p>Welcome, Admin. Select an option from the menu.</p>
+        <div id="search_delete_container">
+            <input type="text" id="delete_search" placeholder="Type by name to delete">
+            <button>delete</button>
         </div>
-
     </div>
-    <footer class="footer">
-    <p>© 2026 BandFinder | HY359 - Διαδικτυακός Προγραμματισμός | Project by csd4107 and csd4098</p>
-  </footer>
 </body>
 </html>
