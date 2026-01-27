@@ -459,6 +459,16 @@ app.get('/session/status', (req, res) => {
         });
     }
 
+    // Logged in as ADMIN
+    if (req.session.admin && activeSessions.has(req.sessionID)) {
+        return res.json({
+            loggedIn: true,
+            role: 'admin',
+            username: req.session.admin.username,
+            sessionCount: activeSessions.size
+        });
+    }
+    
     // Someone else is logged in
     const sessions = Array.from(activeSessions.values());
     const current = sessions[0];

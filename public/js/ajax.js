@@ -130,12 +130,11 @@ function SubscribeBandPost(){
 
 function getUserPost() {
     var xhr = new XMLHttpRequest();
+    
     xhr.onload = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-                $("#profileContent").html(`<p style="color: green;">${response.message}</p>`);
-                checkGlobalSession();
+                window.location.href = "main.html";
             } else if (xhr.status === 409) {
                 //someone already logged in
                 const response = JSON.parse(xhr.responseText);
@@ -315,9 +314,8 @@ function getBandPost() {
     xhr.onload = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-                $("#profileContent").html(`<p style="color: green;">${response.message}</p>`);
-                checkGlobalSession();
+                window.location.href = "main.html";
+
             } else if (xhr.status === 409) {
                 const response = JSON.parse(xhr.responseText);
                 $("#profileContent").html(`<p style="color: red;">${response.error}</p>`);
@@ -451,11 +449,8 @@ function getAdminPost() {
     xhr.onload = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-                $("#profileContent").html(
-                    `<p style="color: green;">${response.message}</p>`
-                );
-                checkGlobalSession();
+                window.location.href = "main.html";
+
             } else {
                 const response = JSON.parse(xhr.responseText);
                 $("#profileContent").html(
@@ -493,12 +488,6 @@ function logoutAdminPost() {
     xhr.send();
 }
 
-function loadAdminDashboard() {
-    $("#profileContent").html(`
-        <p>Admin profile</p>
-    `);
-}
-
 function loadProfilePage() {
     var xhr = new XMLHttpRequest();
 
@@ -520,7 +509,7 @@ function loadProfilePage() {
             }
 
             if (data.role === 'admin') {
-                loadAdminDashboard();
+                window.location.href = 'admin_dashboard.html';
             }
         }
     };
@@ -536,6 +525,7 @@ function checkGlobalSession() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             const data = JSON.parse(xhr.responseText);
             updateGlobalSessionUI(data);
+            updateLogStatusButton(data);
         }
     };
 
@@ -544,25 +534,98 @@ function checkGlobalSession() {
 }
 
 function updateGlobalSessionUI(data) {
+    const sessionStatus = document.getElementById("sessionStatus");
+    const sessionCount = document.getElementById("sessionCount");
+
+    if (!sessionStatus || !sessionCount) return;
+
     if (data.loggedIn) {
-        $('#sessionStatus').html(
-            `✓ Logged in as ${data.role}: ${data.username}`
-        );
-        $('#sessionCount').html(`Active sessions: ${data.sessionCount}`);
+        sessionStatus.innerHTML = `Logged in as ${data.role}: ${data.username}`;
+        sessionCount.innerHTML = `Active sessions: ${data.sessionCount}`;
     } else {
         if (data.sessionCount > 0) {
-            $('#sessionStatus').html(
-                `✗ ${data.role} ${data.username} is currently logged in`
-            );
+            sessionStatus.innerHTML =
+                `${data.role} ${data.username} is currently logged in`;
         } else {
-            $('#sessionStatus').html('✗ Not logged in');
+            sessionStatus.innerHTML = 'Not logged in';
         }
-        $('#sessionCount').html(`Active sessions: ${data.sessionCount}`);
+        sessionCount.innerHTML = `Active sessions: ${data.sessionCount}`;
     }
+}
+
+
+function updateLogStatusButton(data) {
+    const log_status = document.getElementById("log_status");
+    if (!log_status) return;
+
+    if (data.loggedIn) {
+        log_status.textContent = "Logout";
+        log_status.href = "#";
+        log_status.onclick = function () {
+            logoutByRole(data.role);
+        };
+    } else {
+        log_status.textContent = "Login";
+        log_status.href = "login.html";
+        log_status.onclick = null;
+    }
+
+    const registerBtn = document.getElementById("registerBtn");
+
+    
+    if (registerBtn) {
+        registerBtn.style.display = data.loggedIn ? "none" : "inline-block";
+    }
+
+}
+
+function logoutByRole(role) {
+    let url = "";
+
+    if (role === "user") url = "/users/logout";
+    if (role === "band") url = "/bands/logout";
+    if (role === "admin") url = "/admin/logout";
+
+    if (!url) return;
+
+    fetch(url, { method: "POST" })
+        .then(res => res.json())
+        .then(() => {
+            window.location.href = "main.html";
+        })
+        .catch(() => {
+            alert("Logout failed");
+        });
+}
+
+function redirectIfLoggedIn() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+
+            if (data.loggedIn) {
+                window.location.href = "main.html";
+            }
+        }
+    };
+
+    xhr.open("GET", "/session/status");
+    xhr.send();
 }
 
 window.onload = function () {
     checkGlobalSession();
+
+
+    if (
+        document.getElementById("loginForm") ||
+        document.getElementById("bandLoginForm") ||
+        document.getElementById("adminLoginForm")
+    ) {
+        redirectIfLoggedIn();
+    }
 
     if (document.getElementById("profileContent")) {
         loadProfilePage();
@@ -570,3 +633,4 @@ window.onload = function () {
 
     setInterval(checkGlobalSession, 5000);
 };
+

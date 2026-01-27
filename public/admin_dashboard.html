@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN DASHBOARD</title>
     <link rel="stylesheet" href="css/styles.css">
+
 </head>
 <body>
 
@@ -15,6 +16,7 @@
             <a href="delete_user.html" id="admin_delete">Delete User</a>
             <a href="manage_reviews.html" id="admin_reviews">Manage Reviews</a>
             <a href="statistics.html" id="admin_statistics">Show Statistics</a>
+            <a href="main.html">Home</a>
         </nav>
 
         <div class="admin-content">
@@ -25,6 +27,16 @@
     </div>
     <footer class="footer">
     <p>© 2026 BandFinder | HY359 - Διαδικτυακός Προγραμματισμός | Project by csd4107 and csd4098</p>
-  </footer>
+    </footer>
+
+    <script>
+        fetch('/session/status')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.loggedIn || data.role !== 'admin') {
+                    window.location.href = 'login.html';
+                }
+            });
+    </script>
 </body>
 </html>
