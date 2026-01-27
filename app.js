@@ -48,11 +48,15 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({extended: true }));
 app.use(express.json());
 app.use(express.text());
-app.use(express.static('public'));
+app.use(express.static('public', { index: false }));
 app.use(cookieParser());
 
-// Route to serve index.html at root
+// Route to serve main.html at root
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'main.html'));
+});
+
+app.get('/index.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

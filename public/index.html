@@ -9,7 +9,7 @@
 
     </head>
     <body>
-        <h2>HY 359-Examples</h2> 
+        <h2>HY 359-Band Finder Database Page</h2> 
 
 
         <div class="row">
@@ -21,14 +21,15 @@
                  <button  class="button" onclick="insertDB()">Insert Records</button><!-- comment -->
                 <button  class="button" onclick="deleteDB()">Delete Database</button><!-- comment -->
                 <br><br>
-                See the account of a user <br><br>
-                <form id="loginForm" name="loginForm" onsubmit='getUser();return false;'>
-                    <label for="username">username:</label><br>
-                    <input type="text"  id="username" name="username" required><br>
-                    <label for="password">password:</label><br>
-                    <input type="password"  name="password" id="password" required><br>
-                    <input type="submit" class="button" value="Login">
-                </form>
+                <hr>
+                <h3>Admin Access</h3>
+
+                <button
+                class="button"
+                onclick="location.href='admin_login.html'">
+                Admin Login
+                </button>
+
             </div>
             <div class="column column2Width" id="output" style="background-color:#fffff0;">
                 <h2>Output</h2>
