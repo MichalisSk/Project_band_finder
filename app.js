@@ -108,6 +108,15 @@ app.get('/users', async (req, res) => {
   }
 });
 
+app.get('/bands', async (req, res) => {
+  try {
+    const bands = await getAllBands();
+    res.json(bands);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/users/details', async (req, res) => {
   const { username, password } = req.query;
   if (!username || !password) {
@@ -355,6 +364,7 @@ app.post('/bands/logout', (req, res) => {
         return res.status(400).json({ error: 'No active session' });
     }
 });
+
 app.delete('/users/:username', async (req, res) => {
     try {
         const { username } = req.params;

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Explore Bands</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <h1>🎵 BandFinder</h1>
+  </div>
+  <nav class="nav-right">
+    <a href="main.html">Home</a>
+    <a href="bands.html">Bands</a>
+    <a href="profile.html">Profile</a>
+    <a href="login.html" id="log_status">Login</a>
+    <a href="register.html" class="btn" id="registerBtn">Register</a>
+  </nav>
+</header>
+
+<main class="container">
+  <h2>Explore Bands</h2>
+
+  <!-- SORT CONTROLS -->
+  <div style="margin-bottom: 20px; text-align: center;">
+    <select id="sortSelect">
+      <option value="">Sort by</option>
+      <option value="genre">Music Genre</option>
+      <option value="year">Founded Year</option>
+      <option value="city">City</option>
+    </select>
+  </div>
+
+  <!-- BANDS LIST -->
+  <div id="bandsGrid" class="grid"></div>
+</main>
+
+<footer class="footer">
+  <p>© 2026 BandFinder</p>
+</footer>
+
+<script src="js/ajax.js"></script>
+<script src="js/bands.js"></script>
+</body>
+</html>
