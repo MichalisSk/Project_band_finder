@@ -314,3 +314,57 @@ body h2 {
   text-align: center;
   margin-bottom: 0.5rem;
 }
+
+
+.dashboard_wrapper {
+    display: flex; 
+    width: 100%;
+    min-height: 100vh; 
+    background-color: #f5f6fa;
+}
+
+.dashboard_wrapper .side-menu {
+    width: 260px;
+    background-color: #273c75; 
+    display: flex;
+    flex-direction: column;
+    padding-top: 2rem;
+    flex-shrink: 0; 
+}
+
+.dashboard_wrapper .side-menu h3 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.dashboard_wrapper .side-menu a {
+    padding: 1rem 2rem;
+    color: #fff;
+    text-decoration: none; 
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    display: block; 
+}
+
+.dashboard_wrapper .side-menu a:hover {
+    background-color: #192a56; 
+    border-left: 4px solid #44bd32; 
+    padding-left: 2.5rem;
+}
+
+.dashboard_wrapper .admin-content {
+    flex: 1; 
+    padding: 3rem;
+}
+
+.dashboard_wrapper .admin-content h1 {
+    color: #273c75;
+    margin-bottom: 1rem;
+}
