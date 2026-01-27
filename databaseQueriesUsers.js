@@ -106,20 +106,25 @@ async function deleteUser(username) {
   try {
     const conn = await getConnection();
 
-    const deleteQuery = `
-      DELETE FROM users
-      WHERE username = ?
-    `;
-
+    // 1. Run the Delete Command
+    const deleteQuery = 'DELETE FROM users WHERE username = ?';
     const [result] = await conn.execute(deleteQuery, [username]);
 
-    if (result.affectedRows === 0) {
-      return 'No user found with that username.';
+    // 2. CHECK: Did we actually delete a row?
+    if (result.affectedRows > 0) {
+      return true; // Success!
+    } else {
+      return false; // User didn't exist, nothing happened
     }
 
-    return 'User deleted successfully.';
   } catch (err) {
-    throw new Error('DB error: ' + err.message);
+    // 3. CATCH LINKED DATA ERRORS (The "eleni4" issue)
+    // If eleni4 has reviews, MySQL will throw code 1451 or ER_ROW_IS_REFERENCED
+    if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.errno === 1451) {
+        console.error(`Failed to delete ${username}: User has linked reviews/events.`);
+        throw new Error('Cannot delete user: They have linked reviews or events. Delete those first.');
+    }
+    throw err;
   }
 }
 

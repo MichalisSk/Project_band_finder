@@ -355,6 +355,30 @@ app.post('/bands/logout', (req, res) => {
         return res.status(400).json({ error: 'No active session' });
     }
 });
+app.delete('/users/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        console.log(`Attempting to delete user: ${username}`); // Debug log
+
+        // Call the function
+        const wasDeleted = await deleteUser(username);
+        
+        if (wasDeleted) {
+            // SCENARIO A: Success
+            console.log("Deletion successful.");
+            res.status(200).json({ message: `User ${username} deleted successfully.` });
+        } else {
+            // SCENARIO B: User not found (e.g., Typo or already deleted)
+            console.log("User not found in DB.");
+            res.status(404).json({ error: 'User not found.' });
+        }
+
+    } catch (error) {
+        // SCENARIO C: Database Error (e.g. User has reviews)
+        console.error('Delete Error:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 app.post('/admin/loginDetails', async (req, res) => {
     const { username, password } = req.body;
