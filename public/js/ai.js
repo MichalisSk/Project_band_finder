@@ -1,3 +1,5 @@
+"use strict";
+
 function sendAIQuery() {
   const input = document.getElementById("chatInput");
   const output = document.getElementById("chatOutput");
