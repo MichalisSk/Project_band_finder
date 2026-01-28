@@ -158,5 +158,22 @@ async function getEventCounts() {
   }
 }
 
+async function getUserVsBandCounts() {
+  try {
+    const conn = await getConnection();
+    
+    // Simple UNION query to count both tables
+    const query = `
+        SELECT 'Users' as type, COUNT(*) as count FROM users
+        UNION ALL
+        SELECT 'Bands' as type, COUNT(*) as count FROM bands
+    `;
+    
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (err) {
+    throw new Error('DB error: ' + err.message);
+  }
+}
 
-module.exports = {getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand,getBandCountByCity, getEventCounts};
+module.exports = {getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand,getBandCountByCity, getEventCounts, getUserVsBandCounts};
