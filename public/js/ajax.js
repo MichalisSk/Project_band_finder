@@ -1,5 +1,7 @@
 "use strict";
 
+let cachedEvents = [];
+
 function createTableFromJSON(data) {
     var html = "<table><tr><th>Category</th><th>Value</th></tr>";
     for (const x in data) {
@@ -620,21 +622,20 @@ function redirectIfLoggedIn() {
 window.onload = function () {
     checkGlobalSession();
 
-
-    if (
-        document.getElementById("loginForm") ||
-        document.getElementById("bandLoginForm") ||
-        document.getElementById("adminLoginForm")
-    ) {
+    // Existing checks...
+    if (document.getElementById("loginForm") || document.getElementById("bandLoginForm") || document.getElementById("adminLoginForm")) {
         redirectIfLoggedIn();
     }
-
     if (document.getElementById("profileContent")) {
         loadProfilePage();
     }
-
     if (document.getElementById("eventsList")) {
         loadPublicEventsPage();
+    }
+
+    // NEW CHECK for Private Events Page
+    if (document.getElementById("privateEventsList")) {
+        loadPrivateEventsPage();
     }
 
     setInterval(checkGlobalSession, 5000);
@@ -642,14 +643,17 @@ window.onload = function () {
 
 function loadPublicEventsPage() {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/events/public'); // Prepare the request
+    xhr.open('GET', '/events/public'); 
     
     xhr.onload = function () {
         if (xhr.status === 200) {
             try {
-                const events = JSON.parse(xhr.responseText);
-                console.log("Events loaded from DB:", events); // Debug log
-                displayPublicEvents(events);
+                // Store data in the global variable
+                cachedEvents = JSON.parse(xhr.responseText);
+                console.log("Events loaded from DB:", cachedEvents); 
+                
+                // Sort by default (Date) before displaying
+                sortEvents(); 
             } catch (e) {
                 console.error("Error parsing JSON:", e);
                 document.getElementById("eventsList").innerHTML = "<p style='color:red'>Error parsing event data.</p>";
@@ -664,7 +668,36 @@ function loadPublicEventsPage() {
         document.getElementById("eventsList").innerHTML = "<p>Network Error. Is the server running?</p>";
     };
 
-    xhr.send(); // Send the request
+    xhr.send(); 
+}
+
+
+function sortEvents() {
+    // Get the selected sort criteria from the dropdown
+    const criteria = document.getElementById("eventSort").value;
+
+    // Create a copy of the array to avoid mutating the original repeatedly
+    let sortedEvents = [...cachedEvents];
+
+    if (criteria === 'date') {
+        sortedEvents.sort((a, b) => {
+            // Convert strings to Date objects for comparison
+            return new Date(a.event_datetime) - new Date(b.event_datetime);
+        });
+    } else if (criteria === 'city') {
+        sortedEvents.sort((a, b) => {
+            // String comparison (A-Z)
+            return a.event_city.localeCompare(b.event_city);
+        });
+    } else if (criteria === 'type') {
+        sortedEvents.sort((a, b) => {
+            // String comparison (A-Z) on event_type
+            return a.event_type.localeCompare(b.event_type);
+        });
+    }
+
+    // Re-render the list with the sorted data
+    displayPublicEvents(sortedEvents);
 }
 
 function displayPublicEvents(events) {
@@ -825,29 +858,40 @@ function drawEventChart(apiData) {
 }
 
 function updateBandNavigation(data) {
-    // 1. Select the navigation container
     const navContainer = document.querySelector(".nav-right");
     
-    // 2. Check if the link already exists (to avoid duplicates)
-    const existingLink = document.getElementById("band-mgmt-link");
+    // IDs for the links to prevent duplicates
+    const publicLinkId = "band-mgmt-link";
+    const privateLinkId = "band-private-link";
 
-    // 3. Logic: If logged in AND role is band, show link. Otherwise, remove it.
+    // Check existing links
+    const existingPublicLink = document.getElementById(publicLinkId);
+    const existingPrivateLink = document.getElementById(privateLinkId);
+
     if (data.loggedIn && data.role === 'band') {
-        if (!existingLink) {
+        // 1. Add Public Events Link if missing
+        if (!existingPublicLink) {
             const link = document.createElement("a");
-            link.id = "band-mgmt-link"; // ID to identify it later
+            link.id = publicLinkId;
             link.href = "public_events_manage.html";
             link.innerText = "Public Events Management";
-            link.style.marginLeft = "15px"; // Add some spacing from the 'Home' link
-            
-            // Append the link to the navigation
+            link.style.marginLeft = "15px";
             navContainer.appendChild(link);
         }
-    } else {
-        // If user logs out or is not a band, remove the link if it exists
-        if (existingLink) {
-            existingLink.remove();
+
+        // 2. Add Private Events Link if missing (NEW CODE)
+        if (!existingPrivateLink) {
+            const pLink = document.createElement("a");
+            pLink.id = privateLinkId;
+            pLink.href = "private_events_manage.html"; // The new page
+            pLink.innerText = "Private Events Management";
+            pLink.style.marginLeft = "15px"; 
+            navContainer.appendChild(pLink);
         }
+    } else {
+        // Logged out or not a band: Remove links
+        if (existingPublicLink) existingPublicLink.remove();
+        if (existingPrivateLink) existingPrivateLink.remove();
     }
 }
 
@@ -889,4 +933,68 @@ function drawUserBandChart(apiData) {
 
     var chart = new google.visualization.PieChart(document.getElementById('user_band_chart_div'));
     chart.draw(data, options);
+}
+
+function loadPrivateEventsPage() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/events/private'); // Call the new route
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            try {
+                const events = JSON.parse(xhr.responseText);
+                displayPrivateEvents(events);
+            } catch (e) {
+                console.error("Error parsing private events:", e);
+            }
+        } else if (xhr.status === 403) {
+            document.getElementById("privateEventsList").innerHTML = 
+                "<h3 style='color:red'>Access Denied. Please login as a Band.</h3>";
+        } else {
+            document.getElementById("privateEventsList").innerHTML = 
+                "<p>Error loading private events.</p>";
+        }
+    };
+    xhr.send();
+}
+
+function displayPrivateEvents(events) {
+    const container = document.getElementById("privateEventsList");
+
+    if (!Array.isArray(events) || events.length === 0) {
+        container.innerHTML = "<p>No private events requests found.</p>";
+        return;
+    }
+
+    let html = '<table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px;">';
+    html += `
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 10px;">Date</th>
+            <th style="padding: 10px;">Type</th>
+            <th style="padding: 10px;">Requester</th>
+            <th style="padding: 10px;">Description</th>
+            <th style="padding: 10px;">Price</th>
+            <th style="padding: 10px;">Status</th>
+        </tr>
+    `;
+
+    events.forEach(ev => {
+        const dateObj = new Date(ev.event_datetime);
+        // Format date to be readable
+        const dateStr = !isNaN(dateObj) ? dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString() : ev.event_datetime;
+
+        html += `
+            <tr>
+                <td style="padding: 10px;">${dateStr}</td>
+                <td style="padding: 10px;">${ev.event_type}</td>
+                <td style="padding: 10px;">${ev.user_username || 'User ID: ' + ev.user_id}</td> 
+                <td style="padding: 10px;">${ev.event_description || ''}</td>
+                <td style="padding: 10px;">${ev.price} €</td>
+                <td style="padding: 10px;">${ev.status}</td>
+            </tr>
+        `;
+    });
+
+    html += '</table>';
+    container.innerHTML = html;
 }

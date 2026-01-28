@@ -13,10 +13,11 @@ const { getConnection, insertUser, insertBand, insertReview, insertMessage, inse
 const {users, bands,public_events,private_events, reviews, messages} = require('./resources');
 const { getAllUsers, getUserByUsername, getUserByCredentials, updateUser, deleteUser}=require('./databaseQueriesUsers');
 const { getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand}=require('./databaseQueriesBands');
-const { getAllPublicEvents } = require('./databaseQueriesEvents');
+const { getAllPublicEvents} = require('./databaseQueriesEvents');
 const { getBandCountByCity} = require('./databaseQueriesBands');
 const { getEventCounts} = require('./databaseQueriesBands');
 const { getUserVsBandCounts} = require('./databaseQueriesBands');
+const { getAllPrivateEvents} = require('./databaseQueriesEvents');
 
 const app = express();
 const PORT = 3000;
@@ -893,6 +894,21 @@ app.get('/admin/reviews', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to load reviews' });
+    }
+});
+
+app.get('/events/private', async (req, res) => {
+    // 1. Security Check: Only logged-in bands can see this
+    if (!req.session.band) {
+        return res.status(403).json({ error: "Unauthorized access. Band login required." });
+    }
+
+    try {
+        // 2. Fetch ALL private events
+        const events = await getAllPrivateEvents();
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
