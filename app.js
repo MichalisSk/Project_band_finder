@@ -669,64 +669,68 @@ app.post('/bands/profile/update', async (req, res) => {
 // 1. POST /review/ - Create a new review
 app.post('/review', async (req, res) => {
     let connection;
+
+    
+    if (!req.session.user) {
+        return res.status(403).json({
+            error: 'Only logged-in users can submit reviews'
+        });
+    }
+
     try {
-        const { band_name, sender, review, rating } = req.body;
-        
-        // Validate required fields
-        if (!band_name || !sender || !review || !rating) {
-            return res.status(400).json({ 
-                error: 'Missing required fields: band_name, sender, review, rating' 
+        const { band_name, review, rating } = req.body;
+        const sender = req.session.user.username;
+
+        if (!band_name || !review || rating === undefined) {
+            return res.status(406).json({
+                error: 'Missing required fields'
             });
         }
-        
-        // Validate rating (1-5 integer)
+
         const ratingNum = parseInt(rating);
         if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
-            return res.status(406).json({ 
-                error: 'Rating must be an integer between 1 and 5' 
+            return res.status(406).json({
+                error: 'Rating must be an integer between 1 and 5'
             });
         }
-        
-        // Get database connection
+
         connection = await getConnection();
-        
-        // Check if band exists
+
         const [bands] = await connection.execute(
-            'SELECT * FROM bands WHERE band_name = ?',
+            'SELECT band_name FROM bands WHERE band_name = ?',
             [band_name]
         );
-        
+
         if (bands.length === 0) {
-            return res.status(403).json({ 
-                error: 'Band not found' 
+            return res.status(403).json({
+                error: 'Band does not exist'
             });
         }
-        
-        // Insert review with status 'pending'
-        // Note: Your database table uses 'date_time' not 'datetime'
-        const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        const [result] = await connection.execute(
-            'INSERT INTO reviews (band_name, sender, review, rating, date_time, status) VALUES (?, ?, ?, ?, ?, "pending")',
-            [band_name, sender, review, ratingNum, currentTime]
+
+        const now = new Date()
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' ');
+
+        await connection.execute(
+            `INSERT INTO reviews 
+             (band_name, sender, review, rating, date_time, status)
+             VALUES (?, ?, ?, ?, ?, 'pending')`,
+            [band_name, sender, review, ratingNum, now]
         );
-        
-        console.log(`Review created with ID: ${result.insertId}`);
-        res.status(200).json({ 
-            message: 'REST API POST request was successfully created!!',
-            review_id: result.insertId,
-            band_name,
-            sender,
-            review,
-            rating: ratingNum,
-            status: 'pending',
-            date_time: currentTime
+
+        res.status(200).json({
+            message: 'Review submitted successfully and is pending approval'
         });
-        
-    } catch (error) {
-        console.error('Error creating review:', error);
-        res.status(500).json({ error: 'Internal server error: ' + error.message });
+
+    } catch (err) {
+        console.error('Review error:', err);
+        res.status(500).json({
+            error: 'Internal server error'
+        });
     }
 });
+
 
 app.get('/api/admin/events-distribution', async (req, res) => {
     // Admin check
@@ -874,6 +878,7 @@ app.delete('/reviewDeletion/:review_id', async (req, res) => {
     }
 });
 
+/* AI ROUTES */
 
 app.get('/stats/bands-by-city', async (req, res) => {
     // Optional: Protect this route so only admins can see it
