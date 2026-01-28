@@ -38,3 +38,34 @@ function sendAIQuery() {
       output.innerHTML += `<p style="color:red;">AI error</p>`;
     });
 }
+
+function sendMusicChat() {
+  const input = document.getElementById("musicChatInput");
+  const output = document.getElementById("musicChatOutput");
+
+  const question = input.value.trim();
+  if (!question) return;
+
+  output.innerHTML += `<p><strong>You:</strong> ${question}</p>`;
+  input.value = "";
+
+  fetch('/ai/music-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        output.innerHTML += `<p style="color:red;">${data.error}</p>`;
+        return;
+      }
+
+      output.innerHTML += `<p><strong>AI:</strong> ${data.answer}</p>`;
+      output.scrollTop = output.scrollHeight;
+    })
+    .catch(() => {
+      output.innerHTML += `<p style="color:red;">AI error</p>`;
+    });
+}
+

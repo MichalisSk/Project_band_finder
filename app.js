@@ -898,20 +898,20 @@ app.post("/ai/query", async (req, res) => {
     }
 
     const systemPrompt = `
-You generate SQL.
+        You generate SQL.
 
-Return ONLY a single SQL SELECT query.
-No explanations.
-No extra text.
+        Return ONLY a single SQL SELECT query.
+        No explanations.
+        No extra text.
 
-Database table:
-bands(band_name, music_genres, band_city, foundedYear, members_number, band_description)
+        Database table:
+        bands(band_name, music_genres, band_city, foundedYear, members_number, band_description)
 
-Rules:
-- Start with SELECT
-- Use only table bands
-- Use LOWER() and LIKE for text filtering
-`;
+        Rules:
+        - Start with SELECT
+        - Use only table bands
+        - Use LOWER() and LIKE for text filtering
+    `;
 
     try {
         const completion = await hf.chatCompletion({
@@ -968,6 +968,60 @@ Rules:
     }
 });
 
+app.post("/ai/music-chat", async (req, res) => {
+    const { question } = req.body;
+
+    if (!question) {
+        return res.status(400).json({ error: "No question provided" });
+    }
+
+    const systemPrompt = `
+        You are a music assistant.
+
+        IMPORTANT RULES:
+        - DO NOT explain your reasoning
+        - DO NOT describe your thought process
+        - DO NOT say phrases like "I think", "let's see", "okay", "hmm"
+        - DO NOT write analysis or step-by-step thinking
+
+        Respond with ONLY the final answer, as a short clear paragraph.
+
+        You may answer questions about:
+        - music genres
+        - artists and bands
+        - popularity of music styles
+        - music history
+        - instruments and music theory
+
+        If the question is not about music, politely refuse in one sentence.
+    `;
+
+
+    try {
+        const completion = await hf.chatCompletion({
+            model: "HuggingFaceTB/SmolLM3-3B",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: question }
+            ],
+            max_tokens: 256,
+            temperature: 0.7
+        });
+
+        const answer = completion.choices[0].message.content
+            .replace(/<think>[\s\S]*?<\/think>/gi, "")
+            .trim();
+
+        res.json({ answer });
+
+    } catch (err) {
+        console.error("Music AI error:", err);
+        res.status(500).json({
+            error: "Music AI failed",
+            details: err.message
+        });
+    }
+});
 
 
 app.listen(PORT, () => {

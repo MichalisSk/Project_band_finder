@@ -18,7 +18,7 @@ a {
   color: inherit;
 }
 
-/* NAVBAR (already used by main.html) */
+/* NAVBAR  */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -71,6 +71,51 @@ a {
   border-radius: 6px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   text-align: center;
+}
+
+/* AI CHATBOTS LAYOUT */
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  max-width: 100%;
+}
+
+/* Same size cards */
+.ai-card {
+  display: flex;
+  flex-direction: column;
+  height: 420px; /* 🔑 control total size */
+}
+
+/* Chat output box */
+.chat-box {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #dcdde1;
+  padding: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+/* Inputs */
+.chat-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .ai-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-card {
+    height: 380px;
+  }
 }
 
 .card h3 {
@@ -396,4 +441,9 @@ body h2 {
 
 .footer-links a {
   color: inherit;
+}
+
+#fire{
+  font-weight: bold;
+  color:#c23616
 }

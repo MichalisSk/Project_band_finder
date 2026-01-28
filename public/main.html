@@ -42,24 +42,42 @@
 
     </section>
 
-    <section class="card" style="margin-top: 2rem;">
-      <h3>🤖 AI Music Assistant</h3>
+    <section class="ai-grid">
 
-    <div id="chatOutput"
-      style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+  <section class="card ai-card">
+    <h3>🤖 Band Finder AI</h3>
+
+    <div id="chatOutput" class="chat-box">
       <p><em>Try:</em> "bands in Heraklion that play rock"</p>
     </div>
 
     <input
       type="text"
       id="chatInput"
-      placeholder="Ask something about bands or music..."
-      style="width: 100%; padding: 8px;">
+      placeholder="Ask something about the bands..."
+      class="chat-input">
 
-    <button style="margin-top: 10px;" onclick="sendAIQuery()">
-      Ask AI
-    </button>
+    <button onclick="sendAIQuery()">Ask AI</button>
+  </section>
+
+  <section class="card ai-card">
+    <h3>🎶 Music AI</h3>
+
+    <div id="musicChatOutput" class="chat-box">
+      <p><em>Ask anything about music:</em> "What is jazz fusion?"</p>
+    </div>
+
+    <input
+      type="text"
+      id="musicChatInput"
+      placeholder="Ask a music question..."
+      class="chat-input">
+
+    <button onclick="sendMusicChat()">Ask AI</button>
+  </section>
+
 </section>
+
 
   </main>
 
@@ -69,7 +87,7 @@
       <a href="https://www.facebook.com" target="_blank" aria-label="Facebook">
         <img src="images/facebook.png" alt="Facebook">
       </a>
-
+      <a href="https://civilprotection.gov.gr/xartis" id="fire"> | Fire Prediction | </a>
       <a href="https://x.com" target="_blank" aria-label="X">
         <img src="images/x.png" alt="X">
       </a>
