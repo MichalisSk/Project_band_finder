@@ -1,10 +1,15 @@
 "use strict";
 
+/* for HF API CALL */
+require("dotenv").config();
+const { InferenceClient } = require("@huggingface/inference");
+const hf = new InferenceClient(process.env.HF_TOKEN);
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const { initDatabase, dropDatabase } = require('./database');
-const {insertUser, insertBand, insertReview, insertMessage, insertPublicEvent, insertPrivateEvent } = require('./databaseInsert');
+const { getConnection, insertUser, insertBand, insertReview, insertMessage, insertPublicEvent, insertPrivateEvent } = require('./databaseInsert');
 const {users, bands,public_events,private_events, reviews, messages} = require('./resources');
 const { getAllUsers, getUserByUsername, getUserByCredentials, updateUser, deleteUser}=require('./databaseQueriesUsers');
 const { getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand}=require('./databaseQueriesBands');
@@ -14,6 +19,9 @@ const PORT = 3000;
 
 const session = require('express-session');
 var parseUrl = require('body-parser');
+
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
 
 const activeSessions = new Map();
 
@@ -646,8 +654,6 @@ app.post('/bands/profile/update', async (req, res) => {
 
 // REST API ROUTES
 
-const { getConnection } = require('./databaseInsert');
-
 // 1. POST /review/ - Create a new review
 app.post('/review', async (req, res) => {
     let connection;
@@ -840,6 +846,85 @@ app.delete('/reviewDeletion/:review_id', async (req, res) => {
     }
 });
 
+app.post("/ai/query", async (req, res) => {
+    const { question } = req.body;
+
+    if (!question) {
+        return res.status(400).json({ error: "No question provided" });
+    }
+
+    const systemPrompt = `
+You generate SQL.
+
+Return ONLY a single SQL SELECT query.
+No explanations.
+No extra text.
+
+Database table:
+bands(band_name, music_genres, band_city, foundedYear, members_number, band_description)
+
+Rules:
+- Start with SELECT
+- Use only table bands
+- Use LOWER() and LIKE for text filtering
+`;
+
+    try {
+        const completion = await hf.chatCompletion({
+            model: "HuggingFaceTB/SmolLM3-3B",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: question }
+            ],
+            max_tokens: 128,
+            temperature: 0
+        });
+
+        let sql = completion.choices[0].message.content.trim();
+        console.log("AI RAW:", sql);
+
+        // Remove markdown
+        sql = sql.replace(/```sql|```/gi, "").trim();
+
+        // Keep only from SELECT onward
+        const idx = sql.toLowerCase().indexOf("select");
+        if (idx !== -1) {
+            sql = sql.slice(idx);
+        }
+
+        console.log("AI SQL:", sql);
+
+        // Safety check
+        if (
+            !sql.toLowerCase().startsWith("select") ||
+            !/from\s+bands/i.test(sql)
+        ) {
+            return res.status(400).json({
+                error: "Unsafe SQL generated",
+                raw: sql
+            });
+        }
+
+        const conn = await getConnection();
+        const [rows] = await conn.execute(sql);
+
+        // 🔥 RETURN ONLY BAND NAMES
+        const bandNames = rows.map(row => row.band_name);
+
+        res.json({
+            bands: bandNames
+        });
+
+    } catch (err) {
+        console.error("AI error:", err);
+        res.status(500).json({
+            error: "AI processing failed",
+            details: err.message
+        });
+    }
+});
+
+
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
