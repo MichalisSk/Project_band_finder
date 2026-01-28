@@ -27,4 +27,16 @@ async function getAllPublicEvents() {
   }
 }
 
-module.exports = { getAllPublicEvents };
+async function getAllPrivateEvents() {
+    const connection = await getConnection();
+    // We select all event details AND the username from the users table
+    const [rows] = await connection.execute(`
+        SELECT pe.*, u.username as user_username 
+        FROM private_events pe
+        LEFT JOIN users u ON pe.user_id = u.user_id 
+        ORDER BY pe.event_datetime DESC
+    `);
+    return rows;
+}
+
+module.exports = { getAllPublicEvents, getAllPrivateEvents};
