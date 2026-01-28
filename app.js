@@ -9,6 +9,8 @@ const {users, bands,public_events,private_events, reviews, messages} = require('
 const { getAllUsers, getUserByUsername, getUserByCredentials, updateUser, deleteUser}=require('./databaseQueriesUsers');
 const { getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand}=require('./databaseQueriesBands');
 const { getAllPublicEvents } = require('./databaseQueriesEvents');
+const { getBandCountByCity} = require('./databaseQueriesBands');
+const { getEventCounts} = require('./databaseQueriesBands');
 
 const app = express();
 const PORT = 3000;
@@ -706,6 +708,22 @@ app.post('/review', async (req, res) => {
     }
 });
 
+app.get('/api/admin/events-distribution', async (req, res) => {
+    // Admin check
+    if (!req.session.admin) {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        // Call the function we created in Step 1
+        const rows = await getEventCounts();
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // 2. GET /reviews/:band_name - Get reviews for a band
 app.get('/reviews/:band_name', async (req, res) => {
     let connection;
@@ -833,6 +851,20 @@ app.delete('/reviewDeletion/:review_id', async (req, res) => {
     } catch (error) {
         console.error('Error deleting review:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/stats/bands-by-city', async (req, res) => {
+    // Optional: Protect this route so only admins can see it
+    if (!req.session.admin) {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        const stats = await getBandCountByCity();
+        res.json(stats);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

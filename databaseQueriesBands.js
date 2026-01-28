@@ -123,5 +123,40 @@ async function deleteBand(username) {
   }
 }
 
+async function getBandCountByCity() {
+  try {
+    const conn = await getConnection();
+    // Groups bands by city and counts them
+    const query = `
+      SELECT band_city, COUNT(*) as count 
+      FROM bands 
+      WHERE band_city IS NOT NULL AND band_city != ''
+      GROUP BY band_city
+    `;
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (err) {
+    throw new Error('DB error: ' + err.message);
+  }
+}
 
-module.exports = {getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand};
+
+async function getEventCounts() {
+  try {
+    const conn = await getConnection(); // This works here because it is defined in this file
+    
+    const query = `
+        SELECT 'Public Events' as type, COUNT(*) as count FROM public_events
+        UNION ALL
+        SELECT 'Private Events' as type, COUNT(*) as count FROM private_events
+    `;
+    
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (err) {
+    throw new Error('DB error: ' + err.message);
+  }
+}
+
+
+module.exports = {getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand,getBandCountByCity, getEventCounts};

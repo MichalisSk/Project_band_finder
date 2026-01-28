@@ -709,3 +709,115 @@ function displayPublicEvents(events) {
     html += '</div>';
     container.innerHTML = html;
 }
+
+function fetchAndDrawCityChart() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/stats/bands-by-city');
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                drawCityChart(data);
+            } catch (e) {
+                console.error("Error parsing stats:", e);
+                document.getElementById('chart_div').innerHTML = "Error parsing data";
+            }
+        } else if (xhr.status === 403) {
+             document.getElementById('chart_div').innerHTML = "<h3>Access Denied. Please login as Admin.</h3>";
+        } else {
+            console.error("Error loading stats:", xhr.status);
+            document.getElementById('chart_div').innerHTML = "Error loading data";
+        }
+    };
+    
+    xhr.onerror = function() {
+        document.getElementById('chart_div').innerHTML = "Network Error";
+    };
+    
+    xhr.send();
+}
+
+function drawCityChart(apiData) {
+    // 1. Convert API JSON data to Google Charts array format
+    // Header row
+    var chartDataArray = [['City', 'Number of Bands']];
+    
+    // Loop through DB results and add to array
+    apiData.forEach(item => {
+        chartDataArray.push([item.band_city, item.count]);
+    });
+
+    // 2. Convert to DataTable
+    var data = google.visualization.arrayToDataTable(chartDataArray);
+
+    // 3. Set Options
+    var options = {
+        title: 'Distribution of Bands by City',
+        chartArea: {width: '50%'},
+        hAxis: {
+            title: 'Number of Bands',
+            minValue: 0,
+            format: '0' // Integer format
+        },
+        vAxis: {
+            title: 'City'
+        },
+        bars: 'horizontal', // Required for Material Bar Charts, optional for corechart but good for long city names
+        colors: ['#4285F4'],
+        animation: {
+            startup: true,
+            duration: 1000,
+            easing: 'out'
+        }
+    };
+
+    // 4. Instantiate and draw
+    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+}
+
+function fetchAndDrawEventChart() {
+    var xhr = new XMLHttpRequest();
+    
+    // UPDATED URL: Changed from /stats/... to /api/admin/...
+    xhr.open('GET', '/api/admin/events-distribution');
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                drawEventChart(data);
+            } catch (e) {
+                console.error("Error parsing event stats:", e);
+                document.getElementById('piechart_div').innerHTML = "Error parsing data";
+            }
+        } else {
+            console.error("Error loading event stats", xhr.responseText);
+            document.getElementById('piechart_div').innerHTML = "Error loading data";
+        }
+    };
+    xhr.send();
+}
+
+function drawEventChart(apiData) {
+    // Prepare data for Google Charts
+    var dataArray = [['Event Type', 'Count']];
+    
+    apiData.forEach(item => {
+        dataArray.push([item.type, item.count]);
+    });
+
+    var data = google.visualization.arrayToDataTable(dataArray);
+
+    var options = {
+        title: 'Events Distribution (Public vs Private)',
+        is3D: true,
+        colors: ['#ff9900', '#dc3912'], // Distinct colors
+        chartArea: {width: '90%', height: '80%'},
+        legend: {position: 'right'}
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+    chart.draw(data, options);
+}

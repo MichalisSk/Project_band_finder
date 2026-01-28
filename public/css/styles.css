@@ -318,7 +318,7 @@ body h2 {
 
 .dashboard_wrapper {
     display: flex; 
-    width: 100%;
+    width: 25%;
     min-height: 100vh; 
     background-color: #f5f6fa;
 }
