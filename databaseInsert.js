@@ -226,4 +226,4 @@ async function insertPrivateEvent(event) {
 
 
 
-module.exports = { insertUser, insertBand, insertReview, insertMessage, insertPublicEvent, insertPrivateEvent };
+module.exports = { getConnection, insertUser, insertBand, insertReview, insertMessage, insertPublicEvent, insertPrivateEvent };

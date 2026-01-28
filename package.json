@@ -10,7 +10,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@huggingface/hub": "^2.8.0",
+    "@huggingface/inference": "^4.13.10",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mysql2": "^3.15.3"
+    "express-session": "^1.19.0",
+    "mysql2": "^3.15.3",
+    "node-fetch": "^2.7.0"
   }
 }
