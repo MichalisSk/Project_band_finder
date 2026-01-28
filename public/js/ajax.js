@@ -850,3 +850,43 @@ function updateBandNavigation(data) {
         }
     }
 }
+
+function fetchAndDrawUserBandChart() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/admin/user-band-distribution');
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                drawUserBandChart(data);
+            } catch (e) {
+                console.error("Error parsing user/band stats:", e);
+            }
+        } else {
+            console.error("Error loading user/band stats");
+        }
+    };
+    xhr.send();
+}
+
+function drawUserBandChart(apiData) {
+    var dataArray = [['Type', 'Count']];
+    
+    apiData.forEach(item => {
+        dataArray.push([item.type, item.count]);
+    });
+
+    var data = google.visualization.arrayToDataTable(dataArray);
+
+    var options = {
+        title: 'Users vs Bands Registration',
+        is3D: true,
+        colors: ['#2E8B57', '#4682B4'], // Green and Blue
+        chartArea: {width: '90%', height: '80%'},
+        legend: {position: 'right'}
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('user_band_chart_div'));
+    chart.draw(data, options);
+}
