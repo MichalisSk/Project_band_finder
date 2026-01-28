@@ -16,6 +16,7 @@ const { getAllBands, getBandByUsername, getBandByCredentials, updateBand, delete
 const { getAllPublicEvents } = require('./databaseQueriesEvents');
 const { getBandCountByCity} = require('./databaseQueriesBands');
 const { getEventCounts} = require('./databaseQueriesBands');
+const { getUserVsBandCounts} = require('./databaseQueriesBands');
 
 const app = express();
 const PORT = 3000;
@@ -126,6 +127,19 @@ app.get('/bands', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+app.get('/api/admin/user-band-distribution', async (req, res) => {
+    if (!req.session.admin) {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        const rows = await getUserVsBandCounts();
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.get('/users/details', async (req, res) => {
@@ -1031,6 +1045,62 @@ app.post("/ai/music-chat", async (req, res) => {
             details: err.message
         });
     }
+});
+
+app.post('/public_events/create', async (req, res) => {
+  // 1. Check if logged in as a band
+  if (!req.session.band) {
+    return res.status(401).json({ error: "Unauthorized. Please login as a band." });
+  }
+
+  const { 
+    event_type, 
+    event_datetime, 
+    event_description, 
+    participants_price, 
+    event_city, 
+    event_address, 
+    event_lat, 
+    event_lon 
+  } = req.body;
+
+  // 2. Validation
+  if (!event_type || !event_datetime || !event_city) {
+    return res.status(400).json({ error: "Missing required fields (Type, Date, City)." });
+  }
+
+  try {
+    // 3. Get Band ID using the session username
+    const bandResult = await getBandByUsername(req.session.band.username);
+    
+    if (bandResult.length === 0) {
+      return res.status(404).json({ error: "Band record not found." });
+    }
+
+    const bandId = bandResult[0].band_id; // Assuming the primary key column is band_id
+
+    // 4. Construct Event Object
+    const newEvent = {
+      band_id: bandId,
+      event_type,
+      event_datetime, // Ensure this matches DB format (YYYY-MM-DD HH:mm:ss) or JS Date
+      event_description: event_description || '',
+      participants_price: parseFloat(participants_price) || 0,
+      event_city,
+      event_address: event_address || '',
+      event_lat: parseFloat(event_lat) || 0.0,
+      event_lon: parseFloat(event_lon) || 0.0
+    };
+
+    // 5. Insert into Database
+    await insertPublicEvent(newEvent);
+
+    res.status(200).json({ message: "Public event created successfully!" });
+
+  } catch (error) {
+    console.error("Create Event Error:", error);
+    res.status(500).json({ error: "Database error: " + error.message });
+  }
 });
 
 

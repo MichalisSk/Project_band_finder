@@ -526,6 +526,8 @@ function checkGlobalSession() {
             const data = JSON.parse(xhr.responseText);
             updateGlobalSessionUI(data);
             updateLogStatusButton(data);
+
+            updateBandNavigation(data);
         }
     };
 
@@ -819,5 +821,72 @@ function drawEventChart(apiData) {
     };
 
     var chart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+    chart.draw(data, options);
+}
+
+function updateBandNavigation(data) {
+    // 1. Select the navigation container
+    const navContainer = document.querySelector(".nav-right");
+    
+    // 2. Check if the link already exists (to avoid duplicates)
+    const existingLink = document.getElementById("band-mgmt-link");
+
+    // 3. Logic: If logged in AND role is band, show link. Otherwise, remove it.
+    if (data.loggedIn && data.role === 'band') {
+        if (!existingLink) {
+            const link = document.createElement("a");
+            link.id = "band-mgmt-link"; // ID to identify it later
+            link.href = "public_events_manage.html";
+            link.innerText = "Public Events Management";
+            link.style.marginLeft = "15px"; // Add some spacing from the 'Home' link
+            
+            // Append the link to the navigation
+            navContainer.appendChild(link);
+        }
+    } else {
+        // If user logs out or is not a band, remove the link if it exists
+        if (existingLink) {
+            existingLink.remove();
+        }
+    }
+}
+
+function fetchAndDrawUserBandChart() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/admin/user-band-distribution');
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                drawUserBandChart(data);
+            } catch (e) {
+                console.error("Error parsing user/band stats:", e);
+            }
+        } else {
+            console.error("Error loading user/band stats");
+        }
+    };
+    xhr.send();
+}
+
+function drawUserBandChart(apiData) {
+    var dataArray = [['Type', 'Count']];
+    
+    apiData.forEach(item => {
+        dataArray.push([item.type, item.count]);
+    });
+
+    var data = google.visualization.arrayToDataTable(dataArray);
+
+    var options = {
+        title: 'Users vs Bands Registration',
+        is3D: true,
+        colors: ['#2E8B57', '#4682B4'], // Green and Blue
+        chartArea: {width: '90%', height: '80%'},
+        legend: {position: 'right'}
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('user_band_chart_div'));
     chart.draw(data, options);
 }

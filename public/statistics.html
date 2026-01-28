@@ -62,6 +62,11 @@
                     <h2>Events Distribution</h2>
                     <div id="piechart_div" class="chart"></div>
                 </div>
+
+                <div class="chart-box">
+                    <h2>Users vs Bands</h2>
+                    <div id="user_band_chart_div" class="chart"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -77,10 +82,11 @@
             // Load Google Charts
             google.charts.load('current', {'packages':['corechart']});
             
-            // Set callback to draw BOTH charts
+            // Set callback to draw ALL THREE charts
             google.charts.setOnLoadCallback(function() {
                 fetchAndDrawCityChart();
                 fetchAndDrawEventChart();
+                fetchAndDrawUserBandChart(); // Added this call
             });
         };
     </script>
