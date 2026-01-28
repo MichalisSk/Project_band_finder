@@ -1,5 +1,7 @@
 "use strict";
 
+let cachedEvents = [];
+
 function createTableFromJSON(data) {
     var html = "<table><tr><th>Category</th><th>Value</th></tr>";
     for (const x in data) {
@@ -642,14 +644,17 @@ window.onload = function () {
 
 function loadPublicEventsPage() {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/events/public'); // Prepare the request
+    xhr.open('GET', '/events/public'); 
     
     xhr.onload = function () {
         if (xhr.status === 200) {
             try {
-                const events = JSON.parse(xhr.responseText);
-                console.log("Events loaded from DB:", events); // Debug log
-                displayPublicEvents(events);
+                // Store data in the global variable
+                cachedEvents = JSON.parse(xhr.responseText);
+                console.log("Events loaded from DB:", cachedEvents); 
+                
+                // Sort by default (Date) before displaying
+                sortEvents(); 
             } catch (e) {
                 console.error("Error parsing JSON:", e);
                 document.getElementById("eventsList").innerHTML = "<p style='color:red'>Error parsing event data.</p>";
@@ -664,7 +669,36 @@ function loadPublicEventsPage() {
         document.getElementById("eventsList").innerHTML = "<p>Network Error. Is the server running?</p>";
     };
 
-    xhr.send(); // Send the request
+    xhr.send(); 
+}
+
+
+function sortEvents() {
+    // Get the selected sort criteria from the dropdown
+    const criteria = document.getElementById("eventSort").value;
+
+    // Create a copy of the array to avoid mutating the original repeatedly
+    let sortedEvents = [...cachedEvents];
+
+    if (criteria === 'date') {
+        sortedEvents.sort((a, b) => {
+            // Convert strings to Date objects for comparison
+            return new Date(a.event_datetime) - new Date(b.event_datetime);
+        });
+    } else if (criteria === 'city') {
+        sortedEvents.sort((a, b) => {
+            // String comparison (A-Z)
+            return a.event_city.localeCompare(b.event_city);
+        });
+    } else if (criteria === 'type') {
+        sortedEvents.sort((a, b) => {
+            // String comparison (A-Z) on event_type
+            return a.event_type.localeCompare(b.event_type);
+        });
+    }
+
+    // Re-render the list with the sorted data
+    displayPublicEvents(sortedEvents);
 }
 
 function displayPublicEvents(events) {
