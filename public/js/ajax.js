@@ -631,6 +631,81 @@ window.onload = function () {
         loadProfilePage();
     }
 
+    if (document.getElementById("eventsList")) {
+        loadPublicEventsPage();
+    }
+
     setInterval(checkGlobalSession, 5000);
 };
 
+function loadPublicEventsPage() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/events/public'); // Prepare the request
+    
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            try {
+                const events = JSON.parse(xhr.responseText);
+                console.log("Events loaded from DB:", events); // Debug log
+                displayPublicEvents(events);
+            } catch (e) {
+                console.error("Error parsing JSON:", e);
+                document.getElementById("eventsList").innerHTML = "<p style='color:red'>Error parsing event data.</p>";
+            }
+        } else {
+            console.error("Server returned status:", xhr.status);
+            document.getElementById("eventsList").innerHTML = `<p>Error loading events. Status: ${xhr.status}</p>`;
+        }
+    };
+
+    xhr.onerror = function() {
+        document.getElementById("eventsList").innerHTML = "<p>Network Error. Is the server running?</p>";
+    };
+
+    xhr.send(); // Send the request
+}
+
+function displayPublicEvents(events) {
+    const container = document.getElementById("eventsList");
+    
+    // Safety check: ensure events is actually an array
+    if (!Array.isArray(events) || events.length === 0) {
+        container.innerHTML = "<p style='text-align:center;'>No upcoming public events found.</p>";
+        return;
+    }
+
+    let html = '<div class="events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px;">';
+
+    events.forEach(event => {
+        // Handle Date Formatting safely
+        const dateObj = new Date(event.event_datetime); 
+        const dateStr = !isNaN(dateObj) 
+            ? dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            : "Date to be announced";
+
+        // FIX: Added the missing '$' before {event.event_lat}
+        const mapUrl = `http://maps.google.com/maps?q=${event.event_lat},${event.event_lon}`;
+
+        html += `
+            <div class="event-card" style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; background: #f9f9f9; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="margin-top: 0; color: #333;">${event.event_description}</h3>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                
+                <p><strong>🎵 Type:</strong> ${event.event_type}</p>
+                <p><strong>📅 Date:</strong> ${dateStr}</p>
+                <p><strong>📍 City:</strong> ${event.event_city}</p>
+                <p><strong>🏠 Address:</strong> ${event.event_address}</p>
+                <p><strong>💰 Price:</strong> ${event.participants_price} €</p>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <a href="${mapUrl}" target="_blank" style="display: inline-block; padding: 8px 15px; background-color: #4285F4; color: white; text-decoration: none; border-radius: 4px;">
+                        View on Google Maps
+                    </a>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+}

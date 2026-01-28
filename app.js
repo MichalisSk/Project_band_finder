@@ -8,6 +8,7 @@ const {insertUser, insertBand, insertReview, insertMessage, insertPublicEvent, i
 const {users, bands,public_events,private_events, reviews, messages} = require('./resources');
 const { getAllUsers, getUserByUsername, getUserByCredentials, updateUser, deleteUser}=require('./databaseQueriesUsers');
 const { getAllBands, getBandByUsername, getBandByCredentials, updateBand, deleteBand}=require('./databaseQueriesBands');
+const { getAllPublicEvents } = require('./databaseQueriesEvents');
 
 const app = express();
 const PORT = 3000;
@@ -575,6 +576,15 @@ app.get('/bands/profile', async (req, res) => {
         res.json(bandData);
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/events/public', async (req, res) => {
+    try {
+        const events = await getAllPublicEvents();
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
