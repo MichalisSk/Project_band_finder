@@ -664,9 +664,8 @@ app.post('/bands/profile/update', async (req, res) => {
     }
 });
 
-// REST API ROUTES
+// REST API ROUTES - reviews
 
-// 1. POST /review/ - Create a new review
 app.post('/review', async (req, res) => {
     let connection;
 
@@ -748,7 +747,6 @@ app.get('/api/admin/events-distribution', async (req, res) => {
 });
 
 
-// 2. GET /reviews/:band_name - Get reviews for a band
 app.get('/reviews/:band_name', async (req, res) => {
     let connection;
     try {
@@ -794,53 +792,42 @@ app.get('/reviews/:band_name', async (req, res) => {
     }
 });
 
-// 3. PUT /reviewStatus/:review_id/:status - Update review status
 app.put('/reviewStatus/:review_id/:status', async (req, res) => {
-    let connection;
+    const { review_id, status } = req.params;
+
+    if (!['pending', 'published', 'rejected'].includes(status)) {
+        return res.status(406).json({
+            error: 'Invalid status'
+        });
+    }
+
     try {
-        const { review_id, status } = req.params;
-        
-        // Validate status
-        if (!['published', 'rejected'].includes(status)) {
-            return res.status(406).json({ 
-                error: 'Status must be either "published" or "rejected"' 
-            });
-        }
-        
-        // Get database connection
-        connection = await getConnection();
-        
-        // Check if review exists and is pending
-        const [reviews] = await connection.execute(
-            'SELECT * FROM reviews WHERE review_id = ? AND status = "pending"',
+        const conn = await getConnection();
+
+        const [rows] = await conn.execute(
+            'SELECT * FROM reviews WHERE review_id = ?',
             [review_id]
         );
-        
-        if (reviews.length === 0) {
-            return res.status(403).json({ 
-                error: 'Review not found or not in pending status' 
-            });
+
+        if (rows.length === 0) {
+            return res.status(403).json({ error: 'Review not found' });
         }
-        
-        // Update status
-        await connection.execute(
+
+        await conn.execute(
             'UPDATE reviews SET status = ? WHERE review_id = ?',
             [status, review_id]
         );
-        
-        res.status(200).json({ 
-            message: `Review ${review_id} status updated to ${status}`,
-            review_id,
-            new_status: status
+
+        res.json({
+            message: `Review ${review_id} updated to ${status}`
         });
-        
-    } catch (error) {
-        console.error('Error updating review status:', error);
+
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
-// 4. DELETE /reviewDeletion/:review_id - Delete a review
 app.delete('/reviewDeletion/:review_id', async (req, res) => {
     let connection;
     try {
@@ -877,6 +864,24 @@ app.delete('/reviewDeletion/:review_id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+app.get('/admin/reviews', async (req, res) => {
+    if (!req.session.admin) {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        const conn = await getConnection();
+        const [rows] = await conn.execute(
+            'SELECT * FROM reviews ORDER BY date_time DESC'
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to load reviews' });
+    }
+});
+
 
 /* AI ROUTES */
 

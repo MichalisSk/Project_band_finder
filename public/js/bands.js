@@ -3,8 +3,6 @@
 let allBands = [];
 let canLeaveReview = false;
 
-/* ---------------- CHECK SESSION (BACKGROUND ONLY) ---------------- */
-
 function checkSessionForReview() {
   return fetch("/session/status")
     .then(res => res.json())
@@ -16,8 +14,6 @@ function checkSessionForReview() {
       canLeaveReview = false;
     });
 }
-
-/* ---------------- FETCH BANDS ---------------- */
 
 function fetchBands() {
   Promise.all([
@@ -33,8 +29,6 @@ function fetchBands() {
         "<p style='color:red;'>Failed to load bands</p>";
     });
 }
-
-/* ---------------- RENDER ---------------- */
 
 function renderBands(bands) {
   const grid = document.getElementById("bandsGrid");
@@ -70,7 +64,7 @@ function renderBands(bands) {
   });
 }
 
-/* ---------------- SORT ---------------- */
+/* band sorting */
 
 function sortBands(criteria) {
   let sorted = [...allBands];
@@ -94,7 +88,7 @@ document.getElementById("sortSelect").addEventListener("change", e => {
   sortBands(e.target.value);
 });
 
-/* ---------------- REVIEW UI ---------------- */
+/* review UI */
 
 function showReviewForm(bandName) {
   const box = document.getElementById(`review-box-${bandName}`);
@@ -121,7 +115,7 @@ function showReviewForm(bandName) {
   box.style.display = "block";
 }
 
-/* ---------------- SUBMIT REVIEW ---------------- */
+/* review submission */
 
 function submitReview(bandName) {
   const review = document
@@ -160,6 +154,5 @@ function submitReview(bandName) {
     });
 }
 
-/* ---------------- INIT ---------------- */
 
 window.onload = fetchBands;
